@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMO GESTÃO TOTAL - CACHOEIRAS DE MACACU</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --gov-blue: #002d5e; }
+        .bg-gov-blue { background-color: var(--gov-blue); }
+        .tab-active { border-bottom: 4px solid white !important; font-weight: 900 !important; opacity: 1 !important; }
+        .nav-link { opacity: 0.6; cursor: pointer; padding: 1rem 0; transition: 0.2s; }
+        .nav-link:hover { opacity: 1; }
+        .env-section { display: none; } .env-section.active { display: block !important; }
+        .step { display: none; } .step.active { display: block; }
+        th { font-size: 9px; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px; position: sticky; top: 0; z-index: 10; }
+        td { font-size: 10px; border: 1px solid #f1f5f9; padding: 6px; white-space: nowrap; font-weight: 600; }
+        .col-filter { width: 100%; font-size: 9px; border: 1px solid #cbd5e1; border-radius: 3px; margin-top: 4px; color: #475569; padding: 1px; }
+        @media print { .no-print { display: none !important; } body { background: white; } }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+
+    <header class="bg-gov-blue text-white shadow-xl sticky top-0 z-50 no-print">
+        <div class="container mx-auto px-4 flex justify-between items-center h-14">
+            <h1 class="font-black uppercase italic tracking-tighter text-md">Cachoeiras de Macacu <span class="text-orange-400 font-light">Gestão</span></h1>
+            <div class="flex items-center space-x-4">
+                <div id="relogio" class="text-[9px] font-mono opacity-50"></div>
+                <button onclick="window.print()" class="bg-white/10 px-3 py-1 rounded text-[9px] font-black uppercase">Imprimir</button>
+            </div>
+        </div>
+        <nav class="container mx-auto px-4 flex space-x-6 text-[10px] uppercase font-bold border-t border-blue-900">
+            <div id="link-fluxo" onclick="changeEnv('fluxo')" class="nav-link tab-active">Processos</div>
+            <div id="link-operacional" onclick="changeEnv('operacional')" class="nav-link">Recepção</div>
+            <div id="link-painel" onclick="changeEnv('painel')" class="nav-link">Dashboard</div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-6">
+
+        <!-- AMBIENTE 1: PROCESSOS -->
+        <section id="env-fluxo" class="env-section active">
+            <div class="grid grid-cols-1 gap-6">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-t-8 border-gov-blue no-print flex justify-between items-center">
+                    <h2 class="text-xs font-black uppercase text-gov-blue italic">Controle de Fluxo de Processos</h2>
+                    <button onclick="toggleStep(1)" class="bg-gov-blue text-white px-6 py-2 rounded-lg text-[10px] font-black">+ NOVO PROCESSO</button>
+                </div>
+                
+                <!-- Modal Cadastro Processo -->
+                <div id="modal-processo" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+                        <form id="form-processo" onsubmit="submitData(event, 'processo')">
+                            <div class="step active" id="step1">
+                                <h3 class="font-black mb-4">Novo Processo</h3>
+                                <input type="text" name="p_numero" placeholder="Nº PROCESSO" required class="w-full border-2 p-3 rounded-lg mb-3">
+                                <select name="p_assunto" class="w-full border-2 p-3 rounded-lg mb-4 text-sm font-bold">
+                                    <option>HABITE-SE</option><option>AVERBAÇÃO</option><option>APROVAÇÃO DE PROJETO</option><option>RETIFICAÇÃO</option><option>MEMORANDO</option>
+                                </select>
+                                <button type="button" onclick="toggleStep(2)" class="w-full bg-gov-blue text-white py-3 rounded-xl font-black text-xs uppercase">Próximo</button>
+                            </div>
+                            <div class="step" id="step2">
+                                <input type="text" name="p_requerente" placeholder="REQUERENTE" required class="w-full border-2 p-3 rounded-lg mb-3 uppercase">
+                                <input type="text" name="p_orgao" placeholder="ORIGEM" required class="w-full border-2 p-3 rounded-lg mb-4 uppercase">
+                                <div class="flex space-x-2">
+                                    <button type="button" onclick="toggleStep(1)" class="w-1/3 bg-gray-100 py-3 rounded-xl font-bold text-xs">VOLTAR</button>
+                                    <button type="submit" class="w-2/3 bg-gov-blue text-white py-3 rounded-xl font-black text-xs uppercase">Gravar</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
+                    <div class="overflow-x-auto h-[600px]">
+                        <table id="table-proc" class="w-full text-left">
+                            <thead id="head-proc"></thead>
+                            <tbody id="body-proc" class="divide-y"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AMBIENTE 2: OPERACIONAL -->
+        <section id="env-operacional" class="env-section">
+            <div class="grid grid-cols-1 gap-6">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-t-8 border-gov-blue no-print flex justify-between items-center">
+                    <div class="flex bg-slate-100 p-1 rounded-lg">
+                        <button onclick="setOp('iluminacao')" id="tab-ilu" class="px-4 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase">Iluminação</button>
+                        <button onclick="setOp('entulho')" id="tab-ent" class="px-4 py-2 rounded-lg font-black text-[10px] text-slate-400 uppercase">Entulho</button>
+                    </div>
+                    <form id="form-op" onsubmit="submitData(event, 'operacional')" class="flex gap-2">
+                        <input type="hidden" name="target" id="op-target" value="iluminacao">
+                        <input type="text" id="cep" onchange="lookupCEP()" placeholder="CEP" class="border-2 p-2 rounded-lg text-xs w-24">
+                        <select id="rua" name="rua" class="border-2 p-2 rounded-lg text-[10px] w-40"></select>
+                        <input type="text" name="contribuinte" placeholder="CONTRIBUINTE" required class="border-2 p-2 rounded-lg text-xs w-32">
+                        <input type="text" name="pedido" placeholder="PEDIDO" class="border-2 p-2 rounded-lg text-xs w-48">
+                        <button type="submit" class="bg-gov-blue text-white px-4 py-2 rounded-lg font-black text-[9px] uppercase">Salvar</button>
+                    </form>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
+                    <div class="overflow-x-auto h-[600px]">
+                        <table id="table-op" class="w-full text-left">
+                            <thead id="head-op"></thead>
+                            <tbody id="body-op" class="divide-y"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AMBIENTE 3: PAINEL -->
+        <section id="env-painel" class="env-section">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-6 rounded-2xl shadow-xl border-b-8 border-blue-500 text-center"><p class="text-[9px] font-black uppercase text-slate-400">Solicitados</p><h3 id="d-tot" class="text-3xl font-black">0</h3></div>
+                <div class="bg-white p-6 rounded-2xl shadow-xl border-b-8 border-red-500 text-center"><p class="text-[9px] font-black uppercase text-slate-400">Pendentes</p><h3 id="d-pen" class="text-3xl font-black text-red-600">0</h3></div>
+                <div class="bg-white p-6 rounded-2xl shadow-xl border-b-8 border-green-500 text-center"><p class="text-[9px] font-black uppercase text-slate-400">Feitos</p><h3 id="d-exe" class="text-3xl font-black text-green-600">0</h3></div>
+                <div class="bg-white p-6 rounded-2xl shadow-xl border-b-8 border-gov-blue text-center"><p class="text-[9px] font-black uppercase text-slate-400">Eficácia</p><h3 id="d-efi" class="text-3xl font-black text-gov-blue">0%</h3></div>
+            </div>
+            <div class="bg-gov-blue text-white p-10 rounded-3xl mb-8 flex items-center justify-between">
+                <div class="w-full">
+                    <p class="text-[9px] font-black opacity-50 uppercase tracking-widest mb-2">Diagnóstico Dinâmico</p>
+                    <h4 id="d-dia" class="text-2xl font-black italic uppercase italic">Aguardando dados...</h4>
+                </div>
+                <canvas id="chartPie" style="max-width: 150px;"></canvas>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzrjLcY8PRT1sfaexhHgXrLyiz1Bb7cVJX38N2hgRuvs2pO8F--pVeRYZqcQB6887Bw/exec";
+        let FULL_DATA = [];
+        let RUAS_DB = [];
+        let pieC;
+
+        window.onload = function() {
+            fetch(API_URL + "?action=getLogradouros").then(r => r.json()).then(data => {
+                RUAS_DB = data;
+                const rSel = document.getElementById('rua');
+                rSel.innerHTML = "<option value=''>-- RUA --</option>";
+                data.sort((a,b) => a.rua.localeCompare(b.rua)).forEach(s => rSel.add(new Option(s.rua, s.rua)));
+            });
+            loadData('processo');
+            setInterval(() => { document.getElementById('relogio').innerText = new Date().toLocaleString(); }, 1000);
+        };
+
+        async function loadData(target) {
+            const r = await fetch(`${API_URL}?action=getLista&target=${target}`);
+            const data = await r.json();
+            FULL_DATA = data;
+            
+            const headers = target === 'processo' 
+                ? ['Nº', 'Assunto', 'Requerente', 'Órgão', 'Data Receb.', 'Responsável', 'Obs.']
+                : ['Rua', 'Bairro', 'Contribuinte', 'Tel', 'Pedido em', 'Realizado em', 'Status', 'Pedido', 'OS', 'Repetido'];
+            
+            buildTable(target === 'processo' ? 'table-proc' : 'table-op', data, headers, target);
+        }
+
+        function buildTable(tableId, data, headers, target) {
+            const head = document.getElementById(tableId === 'table-proc' ? 'head-proc' : 'head-op');
+            const body = document.getElementById(tableId === 'table-proc' ? 'body-proc' : 'body-op');
+            
+            // Gerar cabeçalho com Dropdowns de Filtro
+            let hHtml = "<tr>";
+            headers.forEach((h, i) => {
+                const uniqueValues = [...new Set(data.map(d => String(d.values[i] || "")))].sort();
+                hHtml += `<th>${h} <br> <select class="col-filter" onchange="applyFilters()"><option value="">TODOS</option>${uniqueValues.map(v => `<option value="${v}">${v}</option>`).join("")}</select></th>`;
+            });
+            if(target !== 'processo') hHtml += "<th>Ações</th>";
+            head.innerHTML = hHtml + "</tr>";
+
+            renderBody(body, data, target);
+        }
+
+        function renderBody(bodyEl, data, target) {
+            bodyEl.innerHTML = "";
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-blue-50 transition cursor-default";
+                row.values.forEach(cell => {
+                    const td = document.createElement('td');
+                    td.innerText = (String(cell).includes('T00:00:00')) ? new Date(cell).toLocaleDateString() : cell || "---";
+                    tr.appendChild(td);
+                });
+
+                if(target !== 'processo') {
+                    const tdAction = document.createElement('td');
+                    tdAction.className = "text-center";
+                    if(!row.values[5]) { // Se data realizado estiver vazia
+                        tdAction.innerHTML = `<button onclick="confirmDone(${row.rowId}, '${target}')" class="text-green-500 hover:scale-125 transition">✅ Concluir</button>`;
+                    } else {
+                        tdAction.innerHTML = `<span class="text-slate-300 italic text-[9px]">FINALIZADO</span>`;
+                    }
+                    tr.appendChild(tdAction);
+                }
+                bodyEl.appendChild(tr);
+            });
+            updateIndicators(data);
+        }
+
+        async function confirmDone(rowId, target) {
+            if(!confirm("Deseja marcar este pedido como FEITO? Isso atualizará a planilha agora.")) return;
+            const res = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: 'marcarFeito', target, rowId }) });
+            if((await res.json()).result === "sucesso") { alert("Status atualizado!"); loadData(target); }
+        }
+
+        function applyFilters() {
+            const activeTab = document.querySelector('.env-section.active').id;
+            const tableId = activeTab === 'env-fluxo' ? 'table-proc' : 'table-op';
+            const bodyId = activeTab === 'env-fluxo' ? 'body-proc' : 'body-op';
+            const table = document.getElementById(tableId);
+            const filters = Array.from(table.querySelectorAll('.col-filter')).map(s => s.value.toLowerCase());
+
+            const filtered = FULL_DATA.filter(row => {
+                return row.values.every((cell, i) => {
+                    if(!filters[i]) return true;
+                    return String(cell).toLowerCase() === filters[i];
+                });
+            });
+
+            renderBody(document.getElementById(bodyId), filtered, activeTab === 'env-fluxo' ? 'processo' : document.getElementById('op-target').value);
+        }
+
+        function updateIndicators(data) {
+            const total = data.length;
+            const feitos = data.filter(r => r.values[5]).length; // Baseado na coluna 'Realizado em'
+            const pendentes = total - feitos;
+            const efic = total > 0 ? ((feitos / total) * 100).toFixed(1) : 0;
+
+            document.getElementById('d-tot').innerText = total;
+            document.getElementById('d-pen').innerText = pendentes;
+            document.getElementById('d-exe').innerText = feitos;
+            document.getElementById('d-efi').innerText = efic + "%";
+
+            const d = document.getElementById('d-dia');
+            if(efic < 50) d.innerText = "CRÍTICO: ACÚMULO DE DEMANDAS";
+            else if(efic < 80) d.innerText = "ATENÇÃO: ACELERAR ROTAS";
+            else d.innerText = "EXCELENTE: META ATINGIDA";
+
+            if(pieC) pieC.destroy();
+            pieC = new Chart(document.getElementById('chartPie'), {
+                type: 'doughnut', data: { datasets: [{ data: [feitos, pendentes], backgroundColor: ['#2ecc71','#e74c3c'] }] },
+                options: { cutout: '80%', plugins: { legend: { display: false } } }
+            });
+        }
+
+        function changeEnv(id) {
+            document.querySelectorAll('.env-section').forEach(e => e.classList.remove('active'));
+            document.getElementById('env-' + id).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('tab-active'));
+            document.getElementById('link-' + id).classList.add('tab-active');
+            loadData(id === 'fluxo' ? 'processo' : (id === 'painel' ? 'iluminacao' : document.getElementById('op-target').value));
+        }
+
+        function setOp(t) { 
+            document.getElementById('op-target').value = t;
+            document.getElementById('tab-ilu').className = t === 'iluminacao' ? "px-4 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase" : "px-4 py-2 rounded-lg font-black text-[10px] text-slate-400 uppercase";
+            document.getElementById('tab-ent').className = t === 'entulho' ? "px-4 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase" : "px-4 py-2 rounded-lg font-black text-[10px] text-slate-400 uppercase";
+            loadData(t);
+        }
+
+        async function submitData(e, type) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerText = "PROCESSANDO..."; btn.disabled = true;
+            const d = Object.fromEntries(new FormData(e.target).entries());
+            d.target = type === 'processo' ? 'processo' : document.getElementById('op-target').value;
+            try {
+                const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(d) });
+                if((await r.json()).result === "sucesso") { alert("Sucesso!"); e.target.reset(); loadData(d.target); if(type === 'processo') document.getElementById('modal-processo').classList.add('hidden'); }
+            } catch(e) { alert("Erro de conexão."); }
+            btn.innerText = "GRAVAR"; btn.disabled = false;
+        }
+
+        function toggleStep(n) { document.getElementById('modal-processo').classList.toggle('hidden'); }
+        function lookupCEP() { const m = RUAS_DB.find(s => s.cep === document.getElementById('cep').value); if(m) document.getElementById('rua').value = m.rua; }
+    </script>
+</body>
+</html>
