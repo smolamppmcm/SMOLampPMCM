@@ -17,21 +17,24 @@
         .step { display: none; } .step.active { display: block; }
         th { font-size: 9px; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; position: sticky; top: 0; z-index: 20; color: #64748b; }
         
-        /* Cor fixada em azul marinho e aplicada prioridade máxima */
         td { font-size: 10px; border: 1px solid #f1f5f9; padding: 8px; white-space: nowrap; font-weight: 700; color: #002d5e !important; }
         
         .filter-select { width: 100%; font-size: 9px; border: 1px solid #cbd5e1; border-radius: 4px; margin-top: 5px; padding: 2px; color: #0f172a; font-weight: normal; }
         
-        /* Lógica CSS para inversão do container, forçando a barra de rolagem para o topo */
         .scroll-top-wrapper { transform: rotateX(180deg); }
         .scroll-top-wrapper table { transform: rotateX(180deg); }
         
-        @media print { .no-print { display: none !important; } .print-only { display: block !important; } }
+        /* Regras exclusivas para a impressão isolada do pedido */
+        @media print { 
+            body * { visibility: hidden; }
+            #print-ticket, #print-ticket * { visibility: visible; }
+            #print-ticket { position: absolute; left: 0; top: 0; width: 100%; display: block !important; }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen">
 
-    <!-- HEADER GERAL -->
     <header class="bg-gov-blue text-white shadow-xl sticky top-0 z-50 no-print">
         <div class="container mx-auto px-4 flex justify-between items-center h-16">
             <div class="flex items-center space-x-3">
@@ -42,7 +45,7 @@
                 </div>
             </div>
             <button onclick="window.print()" class="bg-white/10 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all">
-                <i class="fas fa-print mr-2"></i>Imprimir Aba
+                <i class="fas fa-print mr-2"></i>Imprimir Tela Atual
             </button>
         </div>
         <nav class="container mx-auto px-4 flex space-x-8 text-[11px] uppercase font-bold border-t border-blue-900">
@@ -52,17 +55,20 @@
         </nav>
     </header>
 
-    <main class="container mx-auto p-4 md:p-6">
+    <main class="container mx-auto p-4 md:p-6 no-print">
 
-        <!-- FILTROS DE DATA GLOBAIS -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap items-center gap-6 no-print border border-slate-200">
-            <div class="flex items-center space-x-3 text-slate-500">
+        <div class="bg-white p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap items-center gap-4 no-print border border-slate-200">
+            <div class="flex items-center space-x-2 text-slate-500">
                 <span class="text-[10px] font-black uppercase tracking-widest">Filtrar Período:</span>
                 <input type="date" id="date-start" onchange="applyFilters()" class="border-2 p-1.5 rounded-lg text-xs outline-none focus:border-blue-500 text-black font-bold">
                 <span class="text-xs font-bold opacity-30 text-black">até</span>
                 <input type="date" id="date-end" onchange="applyFilters()" class="border-2 p-1.5 rounded-lg text-xs outline-none focus:border-blue-500 text-black font-bold">
             </div>
-            <button onclick="location.reload()" class="text-[10px] font-black text-blue-600 hover:underline uppercase">Resetar Filtros / Atualizar</button>
+            
+            <button onclick="clearAllFilters()" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-slate-300 transition-all shadow-sm">
+                Mostrar Todos (Pendentes e Feitos)
+            </button>
+            <button onclick="location.reload()" class="text-[10px] font-black text-blue-600 hover:underline uppercase ml-2">Resetar / Atualizar</button>
             <div id="relogio" class="ml-auto text-[10px] font-mono opacity-40"></div>
         </div>
 
@@ -73,11 +79,9 @@
                     <h2 class="text-xs font-black uppercase text-gov-blue italic">Controle de Fluxo de Processos Administrativos</h2>
                     <button onclick="document.getElementById('modal-p').classList.remove('hidden')" class="bg-gov-blue text-white px-6 py-2 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 transition-all">+ NOVO PROCESSO</button>
                 </div>
-                <!-- Barra de rolagem espelhada para o topo -->
                 <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
                     <table id="table-proc" class="w-full text-left">
                         <thead id="head-proc"></thead>
-                        <!-- A classe opacity-30 foi removida do HTML fixo -->
                         <tbody id="body-proc" class="divide-y">
                              <tr><td colspan="10" class="p-20 text-center italic opacity-30">Iniciando conexão com o servidor...</td></tr>
                         </tbody>
@@ -89,25 +93,32 @@
         <!-- AMBIENTE 2: OPERACIONAL (ILUMINAÇÃO/ENTULHO) -->
         <section id="env-operacional" class="env-section">
             <div class="bg-white rounded-2xl shadow-xl border-t-8 border-gov-blue overflow-hidden">
-                <div class="p-6 border-b flex flex-wrap gap-4 justify-between items-center no-print bg-slate-50/50">
-                    <div class="flex bg-slate-200 p-1 rounded-xl font-bold">
+                <div class="p-6 border-b flex flex-col gap-4 no-print bg-slate-50/50">
+                    <div class="flex bg-slate-200 p-1 rounded-xl font-bold w-max">
                         <button onclick="setOp('iluminacao')" id="tab-ilu" class="px-6 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase">Iluminação</button>
                         <button onclick="setOp('entulho')" id="tab-ent" class="px-6 py-2 rounded-lg font-black text-[10px] text-slate-500 uppercase">Entulho</button>
                     </div>
-                    <form id="form-op" onsubmit="submitData(event, 'operacional')" class="flex flex-wrap gap-2 items-end">
+                    
+                    <!-- FORMULÁRIO COM NOVOS CAMPOS -->
+                    <form id="form-op" onsubmit="submitData(event, 'operacional')" class="flex flex-wrap gap-2 items-end w-full">
                         <input type="hidden" name="target" id="op-target" value="iluminacao">
-                        <input type="text" id="cep" onchange="lookupCEP()" placeholder="CEP" class="border-2 p-2 rounded-lg text-[11px] w-24 font-bold outline-none focus:border-orange-400">
-                        <select id="rua" name="rua" onchange="checkManual()" class="border-2 p-2 rounded-lg text-[10px] w-48 font-black shadow-inner outline-none"></select>
+                        
+                        <input type="text" id="cep" onchange="lookupCEP()" placeholder="CEP" class="border-2 p-2 rounded-lg text-[10px] w-20 font-bold outline-none focus:border-orange-400">
+                        <select id="rua" name="rua" onchange="checkManual()" class="border-2 p-2 rounded-lg text-[10px] w-40 font-black shadow-inner outline-none"></select>
                         <input type="text" id="rua-m" class="hidden border-2 border-orange-200 p-2 rounded-lg text-[10px] w-40 bg-orange-50 font-bold" placeholder="Nome da rua...">
-                        <input type="text" name="contribuinte" placeholder="CONTRIBUINTE" required class="border-2 p-2 rounded-lg text-[11px] w-32 uppercase font-bold outline-none">
+                        
+                        <input type="text" id="bairro" name="bairro" placeholder="BAIRRO" required class="border-2 p-2 rounded-lg text-[10px] w-28 uppercase font-bold outline-none">
+                        <input type="text" name="contribuinte" placeholder="CONTRIBUINTE" required class="border-2 p-2 rounded-lg text-[10px] w-32 uppercase font-bold outline-none">
+                        <input type="text" name="telefone" placeholder="TELEFONE" class="border-2 p-2 rounded-lg text-[10px] w-28 uppercase font-bold outline-none">
+                        <input type="text" name="pedido" placeholder="PEDIDO / SOLICITAÇÃO" required class="border-2 p-2 rounded-lg text-[10px] flex-1 min-w-[150px] uppercase font-bold outline-none">
+                        
                         <button type="submit" id="btn-submit-op" class="bg-gov-blue text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase shadow-lg hover:bg-blue-900">Salvar na Planilha</button>
                     </form>
                 </div>
-                <!-- Barra de rolagem espelhada para o topo -->
+                
                 <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
                     <table id="table-op" class="w-full text-left text-[11px]">
                         <thead id="head-op"></thead>
-                        <!-- A classe opacity-30 foi removida do HTML fixo -->
                         <tbody id="body-op" class="divide-y">
                              <tr><td colspan="12" class="p-20 text-center italic opacity-30">Buscando registros operacionais...</td></tr>
                         </tbody>
@@ -166,7 +177,52 @@
         </div>
     </div>
 
-    <!-- Rodapé Oficial com Licença de Copyright -->
+    <!-- TICKET DE IMPRESSÃO INDIVIDUAL (Invisível até o acionamento) -->
+    <div id="print-ticket" class="hidden bg-white p-12 w-full text-black h-screen">
+        <div class="text-center mb-8 pb-4 border-b-4 border-black">
+            <h1 class="text-3xl font-black uppercase tracking-tighter">Prefeitura Municipal de Cachoeiras de Macacu</h1>
+            <h2 class="text-xl font-bold uppercase mt-2">Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação</h2>
+            <h3 class="text-lg font-black text-gray-600 uppercase mt-4 tracking-widest">Ordem de Serviço de Campo <span id="pt-os" class="bg-black text-white px-3 py-1 rounded ml-2"></span></h3>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-8 text-sm font-bold uppercase mt-8">
+            <div class="border-l-4 border-gray-800 pl-4">
+                <span class="text-gray-500 text-xs tracking-widest">Logradouro</span> <br>
+                <span id="pt-rua" class="text-2xl text-black leading-tight"></span>
+            </div>
+            <div class="border-l-4 border-gray-800 pl-4">
+                <span class="text-gray-500 text-xs tracking-widest">Bairro / Localidade</span> <br>
+                <span id="pt-bairro" class="text-2xl text-black leading-tight"></span>
+            </div>
+            <div class="border-l-4 border-gray-800 pl-4 mt-4">
+                <span class="text-gray-500 text-xs tracking-widest">Contribuinte / Solicitante</span> <br>
+                <span id="pt-contribuinte" class="text-xl text-black"></span>
+            </div>
+            <div class="border-l-4 border-gray-800 pl-4 mt-4">
+                <span class="text-gray-500 text-xs tracking-widest">Telefone de Contato</span> <br>
+                <span id="pt-telefone" class="text-xl text-black"></span>
+            </div>
+            <div class="border-l-4 border-gray-800 pl-4 mt-4">
+                <span class="text-gray-500 text-xs tracking-widest">Data do Registro</span> <br>
+                <span id="pt-data" class="text-xl text-black"></span>
+            </div>
+            <div class="border-l-4 border-gray-800 pl-4 mt-4">
+                <span class="text-gray-500 text-xs tracking-widest">Status Administrativo</span> <br>
+                <span id="pt-status" class="text-xl text-black"></span>
+            </div>
+        </div>
+        
+        <div class="mt-12 bg-gray-100 p-6 rounded-xl border border-gray-300">
+            <span class="text-gray-500 text-xs font-black uppercase tracking-widest block mb-2">Descrição Operacional do Pedido:</span>
+            <p id="pt-pedido" class="text-2xl font-black text-black leading-snug"></p>
+        </div>
+
+        <div class="mt-20 pt-8 border-t-2 border-dashed border-gray-400 text-center text-xs font-bold text-gray-500 uppercase tracking-widest">
+            Assinatura do Encarregado: _________________________________________ <br><br>
+            Impresso via Sistema Cachoeiras de Macacu Digital - SMO
+        </div>
+    </div>
+
     <footer class="w-full text-center py-6 mt-8 text-[10px] text-slate-500 font-bold uppercase tracking-widest no-print opacity-70">
         Copyright 2026 da Equipe de Administração da Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação da Prefeitura Municipal de Cachoeiras de Macacu - Apache 2.0
     </footer>
@@ -185,10 +241,7 @@
                 rSel.innerHTML = "<option value=''>-- SELECIONAR LOGRADOURO --</option>";
                 data.sort((a,b) => a.rua.localeCompare(b.rua)).forEach(s => rSel.add(new Option(s.rua, s.rua)));
                 rSel.add(new Option("[ + ADICIONAR NOVA RUA ]", "ADD"));
-
-                const bSel = document.getElementById('bairro');
-                [...new Set(data.map(s => s.bairro))].sort().forEach(b => bSel.add(new Option(b, b)));
-            }).catch(e => console.log("Carregando bases de logradouros..."));
+            }).catch(e => console.log("Carregando bases..."));
 
             changeEnv('fluxo');
             setInterval(() => { document.getElementById('relogio').innerText = new Date().toLocaleString(); }, 1000);
@@ -207,7 +260,6 @@
             const body = document.getElementById(target === 'processo' ? 'body-proc' : 'body-op');
             const head = document.getElementById(target === 'processo' ? 'head-proc' : 'head-op');
             
-            // Controle dinâmico: Ativa a opacidade e itálico apenas enquanto carrega
             body.className = "divide-y italic opacity-30";
             body.innerHTML = "<tr><td colspan='12' class='p-20 text-center font-black animate-pulse'>Sincronizando com Banco de Dados Google...</td></tr>";
 
@@ -227,12 +279,11 @@
                 renderRows(body, FULL_DATA, target);
             } catch(e) { 
                 body.className = "divide-y";
-                body.innerHTML = `<tr><td colspan='12' class='p-20 text-center text-red-500 font-black uppercase tracking-widest'>Falha na Sincronização. Verifique a rede.</td></tr>`;
+                body.innerHTML = `<tr><td colspan='12' class='p-20 text-center text-red-500 font-black uppercase tracking-widest'>Falha na Sincronização.</td></tr>`;
             }
         }
 
         function renderRows(body, data, target) {
-            // Remove a opacidade residual de carregamento, ativando as cores sólidas
             body.className = "divide-y";
             body.innerHTML = "";
             
@@ -244,7 +295,6 @@
                     const td = document.createElement('td');
                     let cellContent = cell;
                     
-                    // Prevenção contra a anomalia 'Invalid Date' em qualquer coluna
                     if (String(cell).includes('T00:00:00') || String(cell).includes('Z')) {
                         const tempDate = new Date(cell);
                         cellContent = isNaN(tempDate.getTime()) ? cell : tempDate.toLocaleDateString('pt-BR');
@@ -255,31 +305,59 @@
 
                 if(target !== 'processo') {
                     const tdAction = document.createElement('td');
-                    tdAction.className = "text-center no-print";
+                    tdAction.className = "text-center no-print flex items-center justify-center gap-3";
                     
                     const statusStr = String(item.values[6] || "").trim().toUpperCase();
                     const dataRealizadoStr = item.values[5];
-                    
-                    // Identifica se o pedido ainda está pendente logicamente
                     const isFeito = statusStr === "FEITO" || statusStr === "CONCLUÍDO";
 
+                    // Caixa de Cheque interligada diretamente à linha originária da planilha
                     if(!isFeito && !dataRealizadoStr) {
-                        // Implementação estrutural da Caixinha de Cheque interativa
-                        tdAction.innerHTML = `<input type="checkbox" onclick="confirmDone(this, ${item.rowId}, '${target}')" class="w-4 h-4 cursor-pointer accent-gov-blue border-gray-300 rounded shadow-sm hover:scale-110 transition-transform" title="Concluir pedido na planilha">`;
+                        tdAction.innerHTML = `<input type="checkbox" onclick="confirmDone(this, ${item.rowId}, '${target}')" class="w-4 h-4 cursor-pointer accent-gov-blue hover:scale-110" title="Marcar como FEITO">`;
                     } else {
-                        // Tratamento robusto para renderizar a data sem gerar o erro "Invalid Date"
                         let dateDisplay = "---";
                         if (dataRealizadoStr) {
                             const parsed = new Date(dataRealizadoStr);
                             dateDisplay = isNaN(parsed.getTime()) ? dataRealizadoStr : parsed.toLocaleDateString('pt-BR');
                         }
-                        tdAction.innerHTML = `<span class="text-gov-blue font-black text-[10px] uppercase tracking-tighter flex items-center justify-center gap-1"><i class="fas fa-check text-green-500"></i> ${dateDisplay}</span>`;
+                        tdAction.innerHTML = `<span class="text-gov-blue font-black text-[10px] uppercase tracking-tighter flex items-center"><i class="fas fa-check text-green-500 mr-1"></i> ${dateDisplay}</span>`;
                     }
+                    
+                    // Botão de Impressão Acoplado
+                    tdAction.innerHTML += `<button onclick="printRow(${item.rowId})" class="bg-gray-200 text-gray-700 px-2 py-1 rounded shadow hover:bg-gray-300 transition-all" title="Imprimir OS"><i class="fas fa-print"></i></button>`;
+                    
                     tr.appendChild(tdAction);
                 }
                 body.appendChild(tr);
             });
             updateDashboard(data);
+        }
+
+        // Nova funcionalidade para imprimir uma ficha isolada do pedido
+        function printRow(rowId) {
+            const item = FULL_DATA.find(r => r.rowId === rowId);
+            if (!item) return;
+
+            document.getElementById('pt-rua').innerText = item.values[0] || '---';
+            document.getElementById('pt-bairro').innerText = item.values[1] || '---';
+            document.getElementById('pt-contribuinte').innerText = item.values[2] || '---';
+            document.getElementById('pt-telefone').innerText = item.values[3] || '---';
+            
+            const dataPed = item.values[4];
+            document.getElementById('pt-data').innerText = (dataPed && !String(dataPed).includes('---')) ? new Date(dataPed).toLocaleDateString('pt-BR') : '---';
+            
+            document.getElementById('pt-status').innerText = item.values[6] || '---';
+            document.getElementById('pt-pedido').innerText = item.values[7] || '---';
+            document.getElementById('pt-os').innerText = item.values[8] || 'S/N';
+
+            window.print();
+        }
+
+        function clearAllFilters() {
+            document.getElementById('date-start').value = "";
+            document.getElementById('date-end').value = "";
+            document.querySelectorAll('.filter-select').forEach(s => s.value = "");
+            applyFilters();
         }
 
         function applyFilters() {
@@ -308,30 +386,19 @@
             renderRows(document.getElementById(bodyId), filtered, target);
         }
 
-        // Função reestruturada para suportar a caixa de seleção e desmarcá-la em caso de cancelamento
         async function confirmDone(checkboxElement, rowId, target) {
-            if(!confirm("Deseja confirmar a execução deste pedido? O status será alterado para FEITO com a data de hoje na planilha do Google.")) {
+            if(!confirm("Deseja confirmar a execução deste pedido? O status será alterado para FEITO na planilha oficial.")) {
                 checkboxElement.checked = false; 
                 return;
             }
-            
-            checkboxElement.disabled = true; // Trava o clique duplo
+            checkboxElement.disabled = true; 
             
             try {
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'concluirPedido', target, rowId }) });
                 const res = await r.json();
-                if(res.result === "sucesso") { 
-                    alert("Sucesso: Status operacional finalizado e registrado!"); 
-                    loadData(target); 
-                } else {
-                    checkboxElement.checked = false;
-                    checkboxElement.disabled = false;
-                }
-            } catch(e) { 
-                alert("Falha de rede ao tentar registrar o pedido."); 
-                checkboxElement.checked = false; 
-                checkboxElement.disabled = false; 
-            }
+                if(res.result === "sucesso") { alert("OS Concluída!"); loadData(target); } 
+                else { checkboxElement.checked = false; checkboxElement.disabled = false; }
+            } catch(e) { alert("Falha na rede."); checkboxElement.checked = false; checkboxElement.disabled = false; }
         }
 
         function updateDashboard(data) {
@@ -351,7 +418,7 @@
             document.getElementById('dash-upd').innerText = new Date().toLocaleTimeString();
 
             const dia = document.getElementById('d-dia');
-            if(total === 0) { dia.innerText = "SEM DADOS PARA O FILTRO ATUAL"; dia.classList.replace('text-green-400', 'text-slate-400'); }
+            if(total === 0) { dia.innerText = "SEM DADOS"; dia.classList.replace('text-green-400', 'text-slate-400'); }
             else if(efic < 50) { dia.innerText = "CRÍTICO: ACÚMULO DE DEMANDAS"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-red-400"; }
             else if(efic < 80) { dia.innerText = "ATENÇÃO: ACELERAR ROTAS"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-orange-400"; }
             else { dia.innerText = "EXCELENTE: META ATINGIDA"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-green-400"; }
@@ -376,20 +443,25 @@
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(d) });
                 const res = await r.json();
                 if(res.result === "sucesso") { 
-                    alert("Dados administrativos gravados com sucesso na planilha matriz!"); 
+                    alert("Cadastrado com sucesso!"); 
                     e.target.reset(); 
                     document.getElementById('modal-p').classList.add('hidden');
                     loadData(d.target);
                 }
-            } catch(err) { alert("Erro de comunicação com o servidor."); }
+            } catch(err) { alert("Erro de comunicação."); }
             btn.disabled = false; btn.innerText = "GRAVAR";
         }
 
         function lookupCEP() { 
             const match = RUAS_DB.find(s => s.cep === document.getElementById('cep').value); 
-            if(match) { document.getElementById('rua').value = match.rua; document.getElementById('bairro').value = match.bairro; } 
+            if(match) { 
+                document.getElementById('rua').value = match.rua; 
+                document.getElementById('bairro').value = match.bairro; // Agora preenche automaticamente a input criada
+            } 
         }
+        
         function checkManual() { document.getElementById('rua-m').classList.toggle('hidden', document.getElementById('rua').value !== "ADD"); if(!document.getElementById('rua-m').classList.contains('hidden')) document.getElementById('rua-m').focus(); }
+        
         function setOp(t) { 
             document.getElementById('op-target').value = t;
             document.getElementById('tab-ilu').className = t === 'iluminacao' ? "px-6 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase italic" : "px-6 py-2 rounded-lg font-black text-[10px] text-slate-500 uppercase italic";
