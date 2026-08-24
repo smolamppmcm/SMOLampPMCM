@@ -16,8 +16,16 @@
         .env-section { display: none; } .env-section.active { display: block !important; }
         .step { display: none; } .step.active { display: block; }
         th { font-size: 9px; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; position: sticky; top: 0; z-index: 20; color: #64748b; }
-        td { font-size: 10px; border: 1px solid #f1f5f9; padding: 8px; white-space: nowrap; font-weight: 700; color: #1e293b; }
+        
+        /* Modificação 1: Cor da fonte alterada para azul (#002d5e) */
+        td { font-size: 10px; border: 1px solid #f1f5f9; padding: 8px; white-space: nowrap; font-weight: 700; color: #002d5e; }
+        
         .filter-select { width: 100%; font-size: 9px; border: 1px solid #cbd5e1; border-radius: 4px; margin-top: 5px; padding: 2px; color: #0f172a; font-weight: normal; }
+        
+        /* Modificação 2: CSS para inverter a div e jogar a barra de rolagem para o topo */
+        .scroll-top-wrapper { transform: rotateX(180deg); }
+        .scroll-top-wrapper table { transform: rotateX(180deg); }
+        
         @media print { .no-print { display: none !important; } .print-only { display: block !important; } }
     </style>
 </head>
@@ -65,7 +73,8 @@
                     <h2 class="text-xs font-black uppercase text-gov-blue italic">Controle de Fluxo de Processos Administrativos</h2>
                     <button onclick="document.getElementById('modal-p').classList.remove('hidden')" class="bg-gov-blue text-white px-6 py-2 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 transition-all">+ NOVO PROCESSO</button>
                 </div>
-                <div class="overflow-x-auto h-[650px]">
+                <!-- Classe scroll-top-wrapper adicionada -->
+                <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
                     <table id="table-proc" class="w-full text-left">
                         <thead id="head-proc"></thead>
                         <tbody id="body-proc" class="divide-y italic opacity-30">
@@ -93,7 +102,8 @@
                         <button type="submit" id="btn-submit-op" class="bg-gov-blue text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase shadow-lg hover:bg-blue-900">Salvar na Planilha</button>
                     </form>
                 </div>
-                <div class="overflow-x-auto h-[650px]">
+                <!-- Classe scroll-top-wrapper adicionada -->
+                <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
                     <table id="table-op" class="w-full text-left text-[11px]">
                         <thead id="head-op"></thead>
                         <tbody id="body-op" class="divide-y italic opacity-30">
@@ -154,10 +164,15 @@
         </div>
     </div>
 
+    <!-- Modificação 4: Rodapé de Copyright Inserido -->
+    <footer class="w-full text-center py-6 mt-8 text-[10px] text-slate-500 font-bold uppercase tracking-widest no-print opacity-70">
+        Copyright 2026 da Equipe de Administração da Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação da Prefeitura Municipal de Cachoeiras de Macacu - Apache 2.0
+    </footer>
+
     <script>
         // SEU NOVO LINK DE IMPLANTAÇÃO
         const API_URL = "https://script.google.com/macros/s/AKfycbzP1wUnU73XGdf1YsEnDpWWA3NVBlxjBYrgkb7F1FmKD_k1wijFoxDNwLUlMG215Q_W/exec";
-        
+
         let FULL_DATA = [];
         let RUAS_DB = [];
         let pieC;
@@ -170,11 +185,11 @@
                 rSel.innerHTML = "<option value=''>-- SELECIONAR LOGRADOURO --</option>";
                 data.sort((a,b) => a.rua.localeCompare(b.rua)).forEach(s => rSel.add(new Option(s.rua, s.rua)));
                 rSel.add(new Option("[ + ADICIONAR NOVA RUA ]", "ADD"));
-                
+
                 const bSel = document.getElementById('bairro');
                 [...new Set(data.map(s => s.bairro))].sort().forEach(b => bSel.add(new Option(b, b)));
             }).catch(e => console.log("O Google Apps Script ainda está carregando as ruas..."));
-            
+
             changeEnv('fluxo');
             setInterval(() => { document.getElementById('relogio').innerText = new Date().toLocaleString(); }, 1000);
         };
@@ -199,7 +214,7 @@
                 const r = await fetch(`${API_URL}?action=getLista&target=${target}`);
                 const data = await r.json();
                 FULL_DATA = data.rows;
-                
+
                 // Gera cabeçalho dinâmico com seletores de filtro para CADA coluna
                 let hHtml = "<tr>";
                 data.headers.forEach((h, i) => {
@@ -231,9 +246,12 @@
                     const tdAction = document.createElement('td');
                     tdAction.className = "text-center no-print";
                     if(!item.values[5]) { // Se a coluna 'Data Realizado' estiver vazia
-                        tdAction.innerHTML = `<button onclick="confirmDone(${item.rowId}, '${target}')" class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-[9px] font-black hover:bg-green-600 hover:text-white transition-all border border-green-200 shadow-sm">✅ CONCLUIR</button>`;
+                        // Modificação 3: Botão substituído pelo check (✔️)
+                        tdAction.innerHTML = `<button onclick="confirmDone(${item.rowId}, '${target}')" class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-[12px] font-black hover:bg-green-600 hover:text-white transition-all border border-green-200 shadow-sm" title="Marcar como concluído">✔️</button>`;
                     } else {
-                        tdAction.innerHTML = `<span class="text-slate-300 font-bold italic text-[9px] uppercase tracking-tighter">Finalizado</span>`;
+                        // Modificação 3: Data de marcação em DD/MM/AAAA junto ao certinho
+                        const dataMarcacao = new Date(item.values[5]).toLocaleDateString('pt-BR');
+                        tdAction.innerHTML = `<span class="text-slate-500 font-bold italic text-[11px] uppercase tracking-tighter">✔️ ${dataMarcacao}</span>`;
                     }
                     tr.appendChild(tdAction);
                 }
@@ -248,7 +266,7 @@
             const tableId = activeTab === 'env-fluxo' ? 'table-proc' : 'table-op';
             const bodyId = activeTab === 'env-fluxo' ? 'body-proc' : 'body-op';
             const target = activeTab === 'env-fluxo' ? 'processo' : document.getElementById('op-target').value;
-            
+
             const selects = document.getElementById(tableId).querySelectorAll('.col-filter');
             const dStart = document.getElementById('date-start').value;
             const dEnd = document.getElementById('date-end').value;
@@ -258,12 +276,12 @@
                     if(!s.value) return true;
                     return String(item.values[s.dataset.index]) === s.value;
                 });
-                
+
                 let dateMatch = true;
                 const rowDate = new Date(item.values[4]); // Assume que a Data do Pedido está na coluna 5 (index 4)
                 if(dStart && rowDate < new Date(dStart)) dateMatch = false;
                 if(dEnd && rowDate > new Date(dEnd)) dateMatch = false;
-                
+
                 return selectMatch && dateMatch;
             });
             renderRows(document.getElementById(bodyId), filtered, target);
@@ -314,7 +332,7 @@
             const d = Object.fromEntries(formData.entries());
             if(d.rua === "ADD") d.rua = document.getElementById('rua-m').value;
             d.target = type === 'processo' ? 'processo' : document.getElementById('op-target').value;
-            
+
             try {
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(d) });
                 const res = await r.json();
