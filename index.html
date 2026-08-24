@@ -17,12 +17,12 @@
         .step { display: none; } .step.active { display: block; }
         th { font-size: 9px; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; position: sticky; top: 0; z-index: 20; color: #64748b; }
         
-        /* Modificação 1: Cor da fonte alterada para azul (#002d5e) */
-        td { font-size: 10px; border: 1px solid #f1f5f9; padding: 8px; white-space: nowrap; font-weight: 700; color: #002d5e; }
+        /* Cor fixada em azul marinho e aplicada prioridade máxima */
+        td { font-size: 10px; border: 1px solid #f1f5f9; padding: 8px; white-space: nowrap; font-weight: 700; color: #002d5e !important; }
         
         .filter-select { width: 100%; font-size: 9px; border: 1px solid #cbd5e1; border-radius: 4px; margin-top: 5px; padding: 2px; color: #0f172a; font-weight: normal; }
         
-        /* Modificação 2: CSS para inverter a div e jogar a barra de rolagem para o topo */
+        /* Lógica CSS para inversão do container, forçando a barra de rolagem para o topo */
         .scroll-top-wrapper { transform: rotateX(180deg); }
         .scroll-top-wrapper table { transform: rotateX(180deg); }
         
@@ -73,12 +73,13 @@
                     <h2 class="text-xs font-black uppercase text-gov-blue italic">Controle de Fluxo de Processos Administrativos</h2>
                     <button onclick="document.getElementById('modal-p').classList.remove('hidden')" class="bg-gov-blue text-white px-6 py-2 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 transition-all">+ NOVO PROCESSO</button>
                 </div>
-                <!-- Classe scroll-top-wrapper adicionada -->
+                <!-- Barra de rolagem espelhada para o topo -->
                 <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
                     <table id="table-proc" class="w-full text-left">
                         <thead id="head-proc"></thead>
-                        <tbody id="body-proc" class="divide-y italic opacity-30">
-                             <tr><td colspan="10" class="p-20 text-center">Iniciando conexão com o servidor...</td></tr>
+                        <!-- A classe opacity-30 foi removida do HTML fixo -->
+                        <tbody id="body-proc" class="divide-y">
+                             <tr><td colspan="10" class="p-20 text-center italic opacity-30">Iniciando conexão com o servidor...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -102,12 +103,13 @@
                         <button type="submit" id="btn-submit-op" class="bg-gov-blue text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase shadow-lg hover:bg-blue-900">Salvar na Planilha</button>
                     </form>
                 </div>
-                <!-- Classe scroll-top-wrapper adicionada -->
+                <!-- Barra de rolagem espelhada para o topo -->
                 <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
                     <table id="table-op" class="w-full text-left text-[11px]">
                         <thead id="head-op"></thead>
-                        <tbody id="body-op" class="divide-y italic opacity-30">
-                             <tr><td colspan="12" class="p-20 text-center">Buscando registros operacionais...</td></tr>
+                        <!-- A classe opacity-30 foi removida do HTML fixo -->
+                        <tbody id="body-op" class="divide-y">
+                             <tr><td colspan="12" class="p-20 text-center italic opacity-30">Buscando registros operacionais...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -164,13 +166,12 @@
         </div>
     </div>
 
-    <!-- Modificação 4: Rodapé de Copyright Inserido -->
+    <!-- Rodapé Oficial com Licença de Copyright -->
     <footer class="w-full text-center py-6 mt-8 text-[10px] text-slate-500 font-bold uppercase tracking-widest no-print opacity-70">
         Copyright 2026 da Equipe de Administração da Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação da Prefeitura Municipal de Cachoeiras de Macacu - Apache 2.0
     </footer>
 
     <script>
-        // SEU NOVO LINK DE IMPLANTAÇÃO
         const API_URL = "https://script.google.com/macros/s/AKfycbzP1wUnU73XGdf1YsEnDpWWA3NVBlxjBYrgkb7F1FmKD_k1wijFoxDNwLUlMG215Q_W/exec";
 
         let FULL_DATA = [];
@@ -178,7 +179,6 @@
         let pieC;
 
         window.onload = function() {
-            // Carrega ruas dinamicamente para o formulário
             fetch(API_URL + "?action=getLogradouros").then(r => r.json()).then(data => {
                 RUAS_DB = data;
                 const rSel = document.getElementById('rua');
@@ -188,13 +188,12 @@
 
                 const bSel = document.getElementById('bairro');
                 [...new Set(data.map(s => s.bairro))].sort().forEach(b => bSel.add(new Option(b, b)));
-            }).catch(e => console.log("O Google Apps Script ainda está carregando as ruas..."));
+            }).catch(e => console.log("Carregando bases de logradouros..."));
 
             changeEnv('fluxo');
             setInterval(() => { document.getElementById('relogio').innerText = new Date().toLocaleString(); }, 1000);
         };
 
-        // --- SISTEMA DE NAVEGAÇÃO ENTRE AMBIENTES ---
         function changeEnv(id) {
             document.querySelectorAll('.env-section').forEach(e => e.classList.remove('active'));
             document.getElementById('env-' + id).classList.add('active');
@@ -204,18 +203,19 @@
             loadData(targetMap[id]);
         }
 
-        // --- CARREGAMENTO DE DADOS DAS TABELAS ---
         async function loadData(target) {
             const body = document.getElementById(target === 'processo' ? 'body-proc' : 'body-op');
             const head = document.getElementById(target === 'processo' ? 'head-proc' : 'head-op');
-            body.innerHTML = "<tr><td colspan='12' class='p-20 text-center opacity-30 italic font-black animate-pulse'>ATUALIZANDO BANCO DE DADOS...</td></tr>";
+            
+            // Controle dinâmico: Ativa a opacidade e itálico apenas enquanto carrega
+            body.className = "divide-y italic opacity-30";
+            body.innerHTML = "<tr><td colspan='12' class='p-20 text-center font-black animate-pulse'>Sincronizando com Banco de Dados Google...</td></tr>";
 
             try {
                 const r = await fetch(`${API_URL}?action=getLista&target=${target}`);
                 const data = await r.json();
                 FULL_DATA = data.rows;
 
-                // Gera cabeçalho dinâmico com seletores de filtro para CADA coluna
                 let hHtml = "<tr>";
                 data.headers.forEach((h, i) => {
                     const uniqueValues = [...new Set(data.rows.map(d => String(d.values[i] || "")))].sort();
@@ -226,41 +226,62 @@
 
                 renderRows(body, FULL_DATA, target);
             } catch(e) { 
-                body.innerHTML = `<tr><td colspan='12' class='p-20 text-center text-red-500 font-black uppercase tracking-widest'>ERRO DE CONEXÃO. VERIFIQUE SE O SCRIPT ESTÁ PUBLICADO CORRETAMENTE.</td></tr>`;
+                body.className = "divide-y";
+                body.innerHTML = `<tr><td colspan='12' class='p-20 text-center text-red-500 font-black uppercase tracking-widest'>Falha na Sincronização. Verifique a rede.</td></tr>`;
             }
         }
 
-        // --- RENDERIZAÇÃO DAS LINHAS ---
         function renderRows(body, data, target) {
+            // Remove a opacidade residual de carregamento, ativando as cores sólidas
+            body.className = "divide-y";
             body.innerHTML = "";
+            
             data.forEach(item => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-blue-50 transition duration-150";
-                item.values.forEach(cell => {
+                
+                item.values.forEach((cell, index) => {
                     const td = document.createElement('td');
-                    td.innerText = (String(cell).includes('T00:00:00') || String(cell).includes('Z')) ? new Date(cell).toLocaleDateString('pt-BR') : cell || "---";
+                    let cellContent = cell;
+                    
+                    // Prevenção contra a anomalia 'Invalid Date' em qualquer coluna
+                    if (String(cell).includes('T00:00:00') || String(cell).includes('Z')) {
+                        const tempDate = new Date(cell);
+                        cellContent = isNaN(tempDate.getTime()) ? cell : tempDate.toLocaleDateString('pt-BR');
+                    }
+                    td.innerText = cellContent || "---";
                     tr.appendChild(td);
                 });
 
                 if(target !== 'processo') {
                     const tdAction = document.createElement('td');
                     tdAction.className = "text-center no-print";
-                    if(!item.values[5]) { // Se a coluna 'Data Realizado' estiver vazia
-                        // Modificação 3: Botão substituído pelo check (✔️)
-                        tdAction.innerHTML = `<button onclick="confirmDone(${item.rowId}, '${target}')" class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-[12px] font-black hover:bg-green-600 hover:text-white transition-all border border-green-200 shadow-sm" title="Marcar como concluído">✔️</button>`;
+                    
+                    const statusStr = String(item.values[6] || "").trim().toUpperCase();
+                    const dataRealizadoStr = item.values[5];
+                    
+                    // Identifica se o pedido ainda está pendente logicamente
+                    const isFeito = statusStr === "FEITO" || statusStr === "CONCLUÍDO";
+
+                    if(!isFeito && !dataRealizadoStr) {
+                        // Implementação estrutural da Caixinha de Cheque interativa
+                        tdAction.innerHTML = `<input type="checkbox" onclick="confirmDone(this, ${item.rowId}, '${target}')" class="w-4 h-4 cursor-pointer accent-gov-blue border-gray-300 rounded shadow-sm hover:scale-110 transition-transform" title="Concluir pedido na planilha">`;
                     } else {
-                        // Modificação 3: Data de marcação em DD/MM/AAAA junto ao certinho
-                        const dataMarcacao = new Date(item.values[5]).toLocaleDateString('pt-BR');
-                        tdAction.innerHTML = `<span class="text-slate-500 font-bold italic text-[11px] uppercase tracking-tighter">✔️ ${dataMarcacao}</span>`;
+                        // Tratamento robusto para renderizar a data sem gerar o erro "Invalid Date"
+                        let dateDisplay = "---";
+                        if (dataRealizadoStr) {
+                            const parsed = new Date(dataRealizadoStr);
+                            dateDisplay = isNaN(parsed.getTime()) ? dataRealizadoStr : parsed.toLocaleDateString('pt-BR');
+                        }
+                        tdAction.innerHTML = `<span class="text-gov-blue font-black text-[10px] uppercase tracking-tighter flex items-center justify-center gap-1"><i class="fas fa-check text-green-500"></i> ${dateDisplay}</span>`;
                     }
                     tr.appendChild(tdAction);
                 }
                 body.appendChild(tr);
             });
-            updateDashboard(data); // Atualiza os indicadores baseado no que está aparecendo na tela
+            updateDashboard(data);
         }
 
-        // --- FILTRAGEM INTELIGENTE DINÂMICA ---
         function applyFilters() {
             const activeTab = document.querySelector('.env-section.active').id;
             const tableId = activeTab === 'env-fluxo' ? 'table-proc' : 'table-op';
@@ -278,7 +299,7 @@
                 });
 
                 let dateMatch = true;
-                const rowDate = new Date(item.values[4]); // Assume que a Data do Pedido está na coluna 5 (index 4)
+                const rowDate = new Date(item.values[4]); 
                 if(dStart && rowDate < new Date(dStart)) dateMatch = false;
                 if(dEnd && rowDate > new Date(dEnd)) dateMatch = false;
 
@@ -287,20 +308,39 @@
             renderRows(document.getElementById(bodyId), filtered, target);
         }
 
-        // --- AÇÃO: MARCAR COMO CONCLUÍDO (BAIXA NA PLANILHA) ---
-        async function confirmDone(rowId, target) {
-            if(!confirm("Deseja marcar este pedido como CONCLUÍDO? Isso atualizará a planilha do Google agora mesmo.")) return;
+        // Função reestruturada para suportar a caixa de seleção e desmarcá-la em caso de cancelamento
+        async function confirmDone(checkboxElement, rowId, target) {
+            if(!confirm("Deseja confirmar a execução deste pedido? O status será alterado para FEITO com a data de hoje na planilha do Google.")) {
+                checkboxElement.checked = false; 
+                return;
+            }
+            
+            checkboxElement.disabled = true; // Trava o clique duplo
+            
             try {
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'concluirPedido', target, rowId }) });
                 const res = await r.json();
-                if(res.result === "sucesso") { alert("SUCESSO: Status atualizado!"); loadData(target); }
-            } catch(e) { alert("Falha na conexão de rede."); }
+                if(res.result === "sucesso") { 
+                    alert("Sucesso: Status operacional finalizado e registrado!"); 
+                    loadData(target); 
+                } else {
+                    checkboxElement.checked = false;
+                    checkboxElement.disabled = false;
+                }
+            } catch(e) { 
+                alert("Falha de rede ao tentar registrar o pedido."); 
+                checkboxElement.checked = false; 
+                checkboxElement.disabled = false; 
+            }
         }
 
-        // --- PAINEL DINÂMICO (SE RECALCULA CONFORME FILTRO) ---
         function updateDashboard(data) {
             const total = data.length;
-            const feitos = data.filter(r => r.values[5]).length; // Baseado na coluna 'Data Realizado'
+            const feitos = data.filter(r => {
+                const s = String(r.values[6] || "").trim().toUpperCase();
+                return s === "FEITO" || s === "CONCLUÍDO";
+            }).length;
+            
             const pendentes = total - feitos;
             const efic = total > 0 ? ((feitos / total) * 100).toFixed(1) : 0;
 
@@ -323,7 +363,6 @@
             });
         }
 
-        // --- SUBMISSÃO DE FORMULÁRIOS ---
         async function submitData(e, type) {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
@@ -337,15 +376,15 @@
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(d) });
                 const res = await r.json();
                 if(res.result === "sucesso") { 
-                    alert("GRAVADO COM SUCESSO!"); e.target.reset(); 
+                    alert("Dados administrativos gravados com sucesso na planilha matriz!"); 
+                    e.target.reset(); 
                     document.getElementById('modal-p').classList.add('hidden');
                     loadData(d.target);
                 }
-            } catch(err) { alert("Erro ao salvar. Verifique se o servidor está ativo."); }
+            } catch(err) { alert("Erro de comunicação com o servidor."); }
             btn.disabled = false; btn.innerText = "GRAVAR";
         }
 
-        // --- FUNÇÕES DE APOIO ---
         function lookupCEP() { 
             const match = RUAS_DB.find(s => s.cep === document.getElementById('cep').value); 
             if(match) { document.getElementById('rua').value = match.rua; document.getElementById('bairro').value = match.bairro; } 
