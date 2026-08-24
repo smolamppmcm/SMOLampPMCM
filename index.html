@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TESTE SMO - GESTÃO TOTAL</title>
+    <title>SMO GESTÃO TOTAL - CACHOEIRAS DE MACACU</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,15 +12,18 @@
         .bg-gov-blue { background-color: var(--gov-blue); }
         .tab-active { border-bottom: 4px solid white !important; font-weight: 900 !important; opacity: 1 !important; }
         .nav-link { opacity: 0.6; cursor: pointer; padding: 1rem 0; transition: 0.2s; }
+        .nav-link:hover { opacity: 1; }
         .env-section { display: none; } .env-section.active { display: block !important; }
+        .step { display: none; } .step.active { display: block; }
         th { font-size: 9px; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; position: sticky; top: 0; z-index: 20; color: #64748b; }
-        td { font-size: 10px; border: 1px solid #f1f5f9; padding: 8px; white-space: nowrap; font-weight: 600; color: #1e293b; }
+        td { font-size: 10px; border: 1px solid #f1f5f9; padding: 8px; white-space: nowrap; font-weight: 700; color: #1e293b; }
         .filter-select { width: 100%; font-size: 9px; border: 1px solid #cbd5e1; border-radius: 4px; margin-top: 5px; padding: 2px; color: #0f172a; font-weight: normal; }
-        @media print { .no-print { display: none !important; } }
+        @media print { .no-print { display: none !important; } .print-only { display: block !important; } }
     </style>
 </head>
 <body class="bg-slate-100 min-h-screen">
 
+    <!-- HEADER GERAL -->
     <header class="bg-gov-blue text-white shadow-xl sticky top-0 z-50 no-print">
         <div class="container mx-auto px-4 flex justify-between items-center h-16">
             <h1 class="font-black uppercase italic tracking-tighter text-lg leading-none">Cachoeiras de Macacu <span class="text-orange-400 font-light">Digital</span></h1>
@@ -40,10 +43,11 @@
             <div class="flex items-center space-x-3">
                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filtrar Período:</span>
                 <input type="date" id="date-start" onchange="applyFilters()" class="border-2 p-1.5 rounded-lg text-xs outline-none focus:border-blue-500">
-                <span class="text-xs font-bold opacity-30">até</span>
+                <span class="text-xs font-bold opacity-30 text-black">até</span>
                 <input type="date" id="date-end" onchange="applyFilters()" class="border-2 p-1.5 rounded-lg text-xs outline-none focus:border-blue-500">
             </div>
-            <button onclick="location.reload()" class="text-[10px] font-black text-blue-600 hover:underline uppercase">Limpar Filtros / Reset</button>
+            <button onclick="location.reload()" class="text-[10px] font-black text-blue-600 hover:underline uppercase">Resetar Sistema</button>
+            <div id="relogio" class="ml-auto text-[10px] font-mono opacity-40"></div>
         </div>
 
         <!-- AMBIENTE 1: PROCESSOS -->
@@ -67,16 +71,16 @@
             <div class="bg-white rounded-2xl shadow-xl border-t-8 border-gov-blue overflow-hidden">
                 <div class="p-6 border-b flex flex-wrap gap-4 justify-between items-center no-print">
                     <div class="flex bg-slate-100 p-1 rounded-xl">
-                        <button onclick="setOp('iluminacao')" id="tab-ilu" class="px-6 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase italic">Iluminação</button>
-                        <button onclick="setOp('entulho')" id="tab-ent" class="px-6 py-2 rounded-lg font-black text-[10px] text-slate-400 uppercase italic">Entulho</button>
+                        <button onclick="setOp('iluminacao')" id="tab-ilu" class="px-6 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase">Iluminação</button>
+                        <button onclick="setOp('entulho')" id="tab-ent" class="px-6 py-2 rounded-lg font-black text-[10px] text-slate-400 uppercase">Entulho</button>
                     </div>
                     <form id="form-op" onsubmit="submitData(event, 'operacional')" class="flex flex-wrap gap-2 items-end">
                         <input type="hidden" name="target" id="op-target" value="iluminacao">
                         <input type="text" id="cep" onchange="lookupCEP()" placeholder="CEP" class="border-2 p-2 rounded-lg text-[11px] w-24 font-bold outline-none focus:border-orange-400">
                         <select id="rua" name="rua" onchange="checkManual()" class="border-2 p-2 rounded-lg text-[10px] w-48 font-black shadow-inner outline-none"></select>
-                        <input type="text" id="rua-m" class="hidden border-2 border-orange-200 p-2 rounded-lg text-[10px] w-40 bg-orange-50 font-bold" placeholder="Digite a rua...">
+                        <input type="text" id="rua-m" class="hidden border-2 border-orange-200 p-2 rounded-lg text-[10px] w-40 bg-orange-50 font-bold" placeholder="Nome da rua...">
                         <input type="text" name="contribuinte" placeholder="CONTRIBUINTE" required class="border-2 p-2 rounded-lg text-[11px] w-32 uppercase font-bold outline-none">
-                        <button type="submit" class="bg-gov-blue text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase shadow-lg">Salvar na Planilha</button>
+                        <button type="submit" id="btn-submit-op" class="bg-gov-blue text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase shadow-lg">Salvar</button>
                     </form>
                 </div>
                 <div class="overflow-x-auto h-[650px]">
@@ -88,19 +92,19 @@
             </div>
         </section>
 
-        <!-- AMBIENTE 3: PAINEL ANALÍTICO DINÂMICO -->
+        <!-- AMBIENTE 3: PAINEL ANALÍTICO -->
         <section id="env-painel" class="env-section">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-blue-500 text-center"><p class="text-[10px] font-black uppercase text-slate-400">Solicitados</p><h3 id="d-tot" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-red-500 text-center"><p class="text-[10px] font-black uppercase text-slate-400">Pendentes</p><h3 id="d-pen" class="text-4xl font-black text-red-600">0</h3></div>
-                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-green-500 text-center"><p class="text-[10px] font-black uppercase text-slate-400">Concluídos</p><h3 id="d-exe" class="text-4xl font-black text-green-600">0</h3></div>
-                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-gov-blue text-center"><p class="text-[10px] font-black uppercase text-slate-400">Eficiência</p><h3 id="d-efi" class="text-4xl font-black text-gov-blue">0%</h3></div>
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-blue-500 text-center"><p class="text-[10px] font-black text-gray-400 uppercase mb-2">Total</p><h3 id="d-tot" class="text-4xl font-black text-slate-800">0</h3></div>
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-red-500 text-center"><p class="text-[10px] font-black text-gray-400 uppercase mb-2">Pendentes</p><h3 id="d-pen" class="text-4xl font-black text-red-600">0</h3></div>
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-green-500 text-center"><p class="text-[10px] font-black text-gray-400 uppercase mb-2">Feitos</p><h3 id="d-exe" class="text-4xl font-black text-green-600">0</h3></div>
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-gov-blue text-center"><p class="text-[10px] font-black text-gray-400 uppercase mb-2">Eficácia</p><h3 id="d-efi" class="text-4xl font-black text-gov-blue">0%</h3></div>
             </div>
             <div class="bg-gov-blue text-white p-12 rounded-[50px] shadow-2xl flex items-center justify-between">
                 <div class="w-2/3">
                     <p class="text-[10px] font-black opacity-50 uppercase tracking-[0.5em] mb-4 text-orange-400">Diagnóstico Inteligente</p>
-                    <h4 id="d-dia" class="text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter">Sincronizando com a Planilha...</h4>
-                    <p class="mt-4 text-[11px] opacity-40 font-mono">Cálculo dinâmico baseado nos filtros ativos de Data e Bairro.</p>
+                    <h4 id="d-dia" class="text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter">Sincronizando...</h4>
+                    <p class="mt-4 text-[11px] opacity-40 font-mono">Última atualização: <span id="dash-upd">--</span></p>
                 </div>
                 <canvas id="chartPie" style="max-width: 180px;"></canvas>
             </div>
@@ -112,46 +116,48 @@
     <div id="modal-p" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-[40px] p-10 max-w-md w-full shadow-2xl border-t-[20px] border-gov-blue">
             <form id="form-p" onsubmit="submitData(event, 'processo')">
-                <h3 class="text-2xl font-black text-gov-blue italic uppercase mb-6 tracking-tighter border-b pb-4">Novo Protocolo</h3>
-                <label class="text-[10px] font-black text-gray-400 mb-1 block uppercase">Número do Processo:</label>
-                <input type="text" name="p_numero" required class="w-full border-2 p-3 rounded-2xl mb-4 font-black text-lg outline-none focus:border-blue-500">
-                <label class="text-[10px] font-black text-gray-400 mb-1 block uppercase">Assunto:</label>
-                <select name="p_assunto" class="w-full border-2 p-3 rounded-2xl mb-6 font-black uppercase bg-slate-50">
-                    <option>HABITE-SE</option><option>AVERBAÇÃO</option><option>APROVAÇÃO DE PROJETO</option><option>RETIFICAÇÃO</option><option>MEMORANDO</option><option>OFÍCIO</option><option>PROTOCOLO GERAL</option><option>ABONO PECUNIÁRIO</option>
+                <h3 class="text-2xl font-black text-gov-blue uppercase italic mb-6 border-b pb-4">Novo Protocolo</h3>
+                <input type="text" name="p_numero" placeholder="Nº PROCESSO" required class="w-full border-2 p-3 rounded-2xl mb-4 font-black outline-none focus:border-blue-500">
+                <select name="p_assunto" class="w-full border-2 p-3 rounded-2xl mb-4 font-black uppercase bg-slate-50 outline-none">
+                    <option>HABITE-SE</option><option>AVERBAÇÃO</option><option>APROVAÇÃO DE PROJETO</option><option>RETIFICAÇÃO</option><option>MEMORANDO</option><option>OFÍCIO</option><option>PROTOCOLO GERAL</option><option>ABONO PECUNIÁRIO</option><option>AUTORIZAÇÃO DE PODA</option>
                 </select>
-                <label class="text-[10px] font-black text-gray-400 mb-1 block uppercase">Requerente:</label>
-                <input type="text" name="p_requerente" required class="w-full border-2 p-3 rounded-2xl mb-4 uppercase font-bold outline-none">
-                <label class="text-[10px] font-black text-gray-400 mb-1 block uppercase">Origem:</label>
-                <input type="text" name="p_orgao" required class="w-full border-2 p-3 rounded-2xl mb-8 uppercase font-bold outline-none" placeholder="Ex: GEFIS, ADM, SEGOV">
+                <input type="text" name="p_requerente" placeholder="NOME DO REQUERENTE" required class="w-full border-2 p-3 rounded-2xl mb-4 uppercase font-bold outline-none">
+                <input type="text" name="p_orgao" placeholder="ÓRGÃO (Ex: GEFIS)" required class="w-full border-2 p-3 rounded-2xl mb-8 uppercase font-bold outline-none">
                 <div class="flex space-x-3">
                     <button type="button" onclick="document.getElementById('modal-p').classList.add('hidden')" class="w-1/3 text-[10px] font-black uppercase text-red-500">Cancelar</button>
-                    <button type="submit" class="w-2/3 bg-gov-blue text-white py-4 rounded-2xl font-black uppercase text-xs shadow-xl">Gravar Agora</button>
+                    <button type="submit" id="btn-submit-p" class="w-2/3 bg-gov-blue text-white py-4 rounded-2xl font-black uppercase text-xs">Gravar Agora</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        const APP_URL = "https://script.google.com/macros/s/AKfycbzrjLcY8PRT1sfaexhHgXrLyiz1Bb7cVJX38N2hgRuvs2pO8F--pVeRYZqcQB6887Bw/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzrjLcY8PRT1sfaexhHgXrLyiz1Bb7cVJX38N2hgRuvs2pO8F--pVeRYZqcQB6887Bw/exec";
         let FULL_DATA = [];
         let RUAS_DB = [];
         let pieC;
 
         window.onload = function() {
             // Carrega ruas dinamicamente
-            fetch(APP_URL + "?action=getLogradouros").then(r => r.json()).then(data => {
-                RUAS_DB = data;
-                const rSel = document.getElementById('rua');
-                rSel.innerHTML = "<option value=''>-- SELECIONAR LOGRADOURO --</option>";
-                data.sort((a,b) => a.rua.localeCompare(b.rua)).forEach(s => rSel.add(new Option(s.rua, s.rua)));
-                rSel.add(new Option("[ + ADICIONAR NOVA RUA ]", "ADD"));
-            }).catch(e => console.log("Erro carregar ruas."));
+            fetch(API_URL + "?action=getLogradouros")
+                .then(r => r.json())
+                .then(data => {
+                    RUAS_DB = data;
+                    const rSel = document.getElementById('rua');
+                    rSel.innerHTML = "<option value=''>-- SELECIONAR RUA --</option>";
+                    data.sort((a,b) => a.rua.localeCompare(b.rua)).forEach(s => rSel.add(new Option(s.rua, s.rua)));
+                    rSel.add(new Option("[ + ADICIONAR NOVA RUA ]", "ADD"));
+                    
+                    const bairros = [...new Set(data.map(s => s.bairro))].sort();
+                    const bSel = document.getElementById('bairro');
+                    bairros.forEach(b => bSel.add(new Option(b, b)));
+                }).catch(e => console.log("Erro carregar ruas."));
             
             changeEnv('fluxo');
             setInterval(() => { document.getElementById('relogio').innerText = new Date().toLocaleString(); }, 1000);
         };
 
-        // --- NAVEGAÇÃO E CARREGAMENTO ---
+        // --- NAVEGAÇÃO ---
         function changeEnv(id) {
             document.querySelectorAll('.env-section').forEach(e => e.classList.remove('active'));
             document.getElementById('env-' + id).classList.add('active');
@@ -163,16 +169,15 @@
         }
 
         async function loadData(target) {
-            const head = document.getElementById(target === 'processo' ? 'head-proc' : 'head-op');
             const body = document.getElementById(target === 'processo' ? 'body-proc' : 'body-op');
-            body.innerHTML = "<tr><td colspan='12' class='p-20 text-center opacity-30 italic font-black'>SINCRONIZANDO COM A NUVEM...</td></tr>";
+            const head = document.getElementById(target === 'processo' ? 'head-proc' : 'head-op');
+            body.innerHTML = "<tr><td colspan='12' class='p-20 text-center opacity-30 italic font-black'>CONECTANDO AO BANCO DE DADOS...</td></tr>";
 
             try {
-                const r = await fetch(`${APP_URL}?action=getLista&target=${target}`);
+                const r = await fetch(`${API_URL}?action=getLista&target=${target}`);
                 const data = await r.json();
                 FULL_DATA = data.rows;
                 
-                // Gerar cabeçalho com Selects de Filtro
                 let hHtml = "<tr>";
                 data.headers.forEach((h, i) => {
                     const uniqueValues = [...new Set(data.rows.map(d => String(d.values[i] || "")))].sort();
@@ -182,7 +187,9 @@
                 head.innerHTML = hHtml + "</tr>";
 
                 renderRows(body, FULL_DATA, target);
-            } catch(e) { body.innerHTML = "<tr><td colspan='12' class='p-20 text-center text-red-500 font-black'>ERRO DE CONEXÃO.</td></tr>"; }
+            } catch(e) { 
+                body.innerHTML = `<tr><td colspan='12' class='p-20 text-center text-red-500 font-black uppercase'>ERRO DE CONEXÃO. VERIFIQUE SE O SCRIPT ESTÁ PUBLICADO COMO "QUALQUER PESSOA".</td></tr>`;
+            }
         }
 
         function renderRows(body, data, target) {
@@ -199,8 +206,8 @@
                 if(target !== 'processo') {
                     const tdAction = document.createElement('td');
                     tdAction.className = "text-center";
-                    if(!item.values[5]) { // Se coluna 'Data Realizado' está vazia
-                        tdAction.innerHTML = `<button onclick="confirmDone(${item.rowId}, '${target}')" class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-[9px] font-black hover:bg-green-200 transition">✅ CONCLUIR</button>`;
+                    if(!item.values[5]) { 
+                        tdAction.innerHTML = `<button onclick="confirmDone(${item.rowId}, '${target}')" class="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-[9px] font-black hover:bg-green-200">✅ CONCLUIR</button>`;
                     } else {
                         tdAction.innerHTML = `<span class="text-slate-300 font-bold italic text-[9px]">FINALIZADO</span>`;
                     }
@@ -211,7 +218,7 @@
             updateDashboard(data);
         }
 
-        // --- FILTRAGEM INTELIGENTE ---
+        // --- FILTROS ---
         function applyFilters() {
             const activeTab = document.querySelector('.env-section.active').id;
             const tableId = activeTab === 'env-fluxo' ? 'table-proc' : 'table-op';
@@ -223,38 +230,32 @@
             const dEnd = document.getElementById('date-end').value;
 
             const filtered = FULL_DATA.filter(item => {
-                // 1. Filtro dos Selects
                 const selectMatch = Array.from(selects).every(s => {
                     if(!s.value) return true;
                     return String(item.values[s.dataset.index]) === s.value;
                 });
-
-                // 2. Filtro de Datas (Usa coluna index 4 - Data Pedido/Receb)
                 let dateMatch = true;
                 const rowDate = new Date(item.values[4]);
                 if(dStart && rowDate < new Date(dStart)) dateMatch = false;
                 if(dEnd && rowDate > new Date(dEnd)) dateMatch = false;
-
                 return selectMatch && dateMatch;
             });
-
             renderRows(document.getElementById(bodyId), filtered, target);
         }
 
-        // --- AÇÃO: MARCAR COMO FEITO ---
+        // --- AÇÃO MARCAR FEITO ---
         async function confirmDone(rowId, target) {
-            if(!confirm("Confirmar a conclusão deste pedido? Isso atualizará a planilha oficial.")) return;
+            if(!confirm("Deseja marcar como concluído? Isso alterará a Planilha oficial.")) return;
             try {
-                const r = await fetch(APP_URL, { method: 'POST', body: JSON.stringify({ action: 'concluirPedido', target, rowId }) });
-                const res = await r.json();
-                if(res.result === "sucesso") { alert("PEDIDO CONCLUÍDO!"); loadData(target); }
-            } catch(e) { alert("Erro ao atualizar."); }
+                const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'concluirPedido', target, rowId }) });
+                if((await r.json()).result === "sucesso") { alert("SUCESSO!"); loadData(target); }
+            } catch(e) { alert("Falha na rede."); }
         }
 
-        // --- PAINEL DINÂMICO (RECALCULA TUDO) ---
+        // --- PAINEL ---
         function updateDashboard(data) {
             const total = data.length;
-            const feitos = data.filter(r => r.values[5]).length; // Baseado na coluna 6 (Realizado em)
+            const feitos = data.filter(r => r.values[5]).length;
             const pendentes = total - feitos;
             const efic = total > 0 ? ((feitos / total) * 100).toFixed(1) : 0;
 
@@ -262,6 +263,7 @@
             document.getElementById('d-pen').innerText = pendentes;
             document.getElementById('d-exe').innerText = feitos;
             document.getElementById('d-efi').innerText = efic + "%";
+            document.getElementById('dash-upd').innerText = new Date().toLocaleTimeString();
 
             const dia = document.getElementById('d-dia');
             if(efic < 50) dia.innerText = "CRÍTICO: ACÚMULO DE DEMANDAS";
@@ -275,32 +277,32 @@
             });
         }
 
-        // --- FORMULÁRIOS E AUXILIARES ---
+        // --- ENVIAR DADOS ---
         async function submitData(e, type) {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerText = "GRAVANDO..."; btn.disabled = true;
+            btn.innerText = "..."; btn.disabled = true;
             const formData = new FormData(e.target);
             const d = Object.fromEntries(formData.entries());
             if(d.rua === "ADD") d.rua = document.getElementById('rua-m').value;
             d.target = type === 'processo' ? 'processo' : document.getElementById('op-target').value;
+            
             try {
-                const r = await fetch(APP_URL, { method: 'POST', body: JSON.stringify(d) });
+                const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(d) });
                 if((await r.json()).result === "sucesso") { 
                     alert("GRAVADO COM SUCESSO!"); e.target.reset(); 
-                    if(type === 'processo') document.getElementById('modal-p').classList.add('hidden');
+                    document.getElementById('modal-p').classList.add('hidden');
                     loadData(d.target);
                 }
-            } catch(err) { alert("Falha na gravação."); }
-            btn.disabled = false; btn.innerText = "GRAVAR AGORA";
+            } catch(err) { alert("Erro de conexão."); }
+            btn.disabled = false; btn.innerText = "GRAVAR";
         }
 
         function lookupCEP() { 
-            const m = RUAS_DB.find(s => s.cep === document.getElementById('cep').value); 
-            if(m) { document.getElementById('rua').value = m.rua; document.getElementById('bairro').value = m.bairro; } 
+            const match = RUAS_DB.find(s => s.cep === document.getElementById('cep').value); 
+            if(match) { document.getElementById('rua').value = match.rua; document.getElementById('bairro').value = match.bairro; } 
         }
         function checkManual() { document.getElementById('rua-m').classList.toggle('hidden', document.getElementById('rua').value !== "ADD"); }
-        function toggleStep(n) { document.querySelectorAll('.step').forEach(s => s.classList.remove('active')); document.getElementById('step'+n).classList.add('active'); }
         function setOp(t) { 
             document.getElementById('op-target').value = t;
             document.getElementById('tab-ilu').className = t === 'iluminacao' ? "px-6 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase italic" : "px-6 py-2 rounded-lg font-black text-[10px] text-slate-400 uppercase italic";
