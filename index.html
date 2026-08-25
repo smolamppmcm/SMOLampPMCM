@@ -14,17 +14,16 @@
         .nav-link { opacity: 0.6; cursor: pointer; padding: 1rem 0; transition: 0.2s; }
         .nav-link:hover { opacity: 1; }
         .env-section { display: none; } .env-section.active { display: block !important; }
-        .step { display: none; } .step.active { display: block; }
-        th { font-size: 9px; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; position: sticky; top: 0; z-index: 20; color: #64748b; }
         
+        /* Ajuste minucioso para cabeçalhos e filtros visíveis */
+        th { font-size: 9px; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; position: sticky; top: 0; z-index: 30; color: #64748b; }
         td { font-size: 10px; border: 1px solid #f1f5f9; padding: 8px; white-space: nowrap; font-weight: 700; color: #002d5e !important; }
         
-        .filter-select { width: 100%; font-size: 9px; border: 1px solid #cbd5e1; border-radius: 4px; margin-top: 5px; padding: 2px; color: #0f172a; font-weight: normal; }
+        .filter-select { width: 100%; font-size: 9px; border: 1px solid #94a3b8; border-radius: 4px; margin-top: 5px; padding: 2px; color: #000; font-weight: bold; background-color: #fff; cursor: pointer; }
         
         .scroll-top-wrapper { transform: rotateX(180deg); }
         .scroll-top-wrapper table { transform: rotateX(180deg); }
         
-        /* Regras exclusivas para a impressão isolada do pedido */
         @media print { 
             body * { visibility: hidden; }
             #print-ticket, #print-ticket * { visibility: visible; }
@@ -51,7 +50,7 @@
         <nav class="container mx-auto px-4 flex space-x-8 text-[11px] uppercase font-bold border-t border-blue-900">
             <div id="link-fluxo" onclick="changeEnv('fluxo')" class="nav-link tab-active">1. Processos</div>
             <div id="link-operacional" onclick="changeEnv('operacional')" class="nav-link">2. Recepção / Operacional</div>
-            <div id="link-painel" onclick="changeEnv('painel')" class="nav-link">3. Painel de Eficiência</div>
+            <div id="link-painel" onclick="changeEnv('painel')" class="nav-link">3. Painel Iluminação</div>
         </nav>
     </header>
 
@@ -66,7 +65,7 @@
             </div>
             
             <button onclick="clearAllFilters()" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-slate-300 transition-all shadow-sm">
-                Mostrar Todos (Pendentes e Feitos)
+                Mostrar Todos (Limpar Filtros)
             </button>
             <button onclick="location.reload()" class="text-[10px] font-black text-blue-600 hover:underline uppercase ml-2">Resetar / Atualizar</button>
             <div id="relogio" class="ml-auto text-[10px] font-mono opacity-40"></div>
@@ -80,10 +79,10 @@
                     <button onclick="document.getElementById('modal-p').classList.remove('hidden')" class="bg-gov-blue text-white px-6 py-2 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 transition-all">+ NOVO PROCESSO</button>
                 </div>
                 <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
-                    <table id="table-proc" class="w-full text-left">
+                    <table id="table-proc" class="w-full text-left relative">
                         <thead id="head-proc"></thead>
                         <tbody id="body-proc" class="divide-y">
-                             <tr><td colspan="10" class="p-20 text-center italic opacity-30">Iniciando conexão com o servidor...</td></tr>
+                             <tr><td colspan="15" class="p-20 text-center italic opacity-30">Iniciando conexão com o servidor...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -95,11 +94,10 @@
             <div class="bg-white rounded-2xl shadow-xl border-t-8 border-gov-blue overflow-hidden">
                 <div class="p-6 border-b flex flex-col gap-4 no-print bg-slate-50/50">
                     <div class="flex bg-slate-200 p-1 rounded-xl font-bold w-max">
-                        <button onclick="setOp('iluminacao')" id="tab-ilu" class="px-6 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase">Iluminação</button>
-                        <button onclick="setOp('entulho')" id="tab-ent" class="px-6 py-2 rounded-lg font-black text-[10px] text-slate-500 uppercase">Entulho</button>
+                        <button onclick="setOp('iluminacao')" id="tab-ilu" class="px-6 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase italic">Iluminação</button>
+                        <button onclick="setOp('entulho')" id="tab-ent" class="px-6 py-2 rounded-lg font-black text-[10px] text-slate-500 uppercase italic">Entulho</button>
                     </div>
                     
-                    <!-- FORMULÁRIO COM NOVOS CAMPOS -->
                     <form id="form-op" onsubmit="submitData(event, 'operacional')" class="flex flex-wrap gap-2 items-end w-full">
                         <input type="hidden" name="target" id="op-target" value="iluminacao">
                         
@@ -107,28 +105,35 @@
                         <select id="rua" name="rua" onchange="checkManual()" class="border-2 p-2 rounded-lg text-[10px] w-40 font-black shadow-inner outline-none"></select>
                         <input type="text" id="rua-m" class="hidden border-2 border-orange-200 p-2 rounded-lg text-[10px] w-40 bg-orange-50 font-bold" placeholder="Nome da rua...">
                         
+                        <!-- Novos campos: Número e Complemento -->
+                        <input type="text" id="numero" name="numero" placeholder="Nº" class="border-2 p-2 rounded-lg text-[10px] w-16 font-bold outline-none focus:border-orange-400">
+                        <input type="text" id="complemento" name="complemento" placeholder="COMPLEMENTO" class="border-2 p-2 rounded-lg text-[10px] w-32 font-bold outline-none focus:border-orange-400">
+                        
                         <input type="text" id="bairro" name="bairro" placeholder="BAIRRO" required class="border-2 p-2 rounded-lg text-[10px] w-28 uppercase font-bold outline-none">
                         <input type="text" name="contribuinte" placeholder="CONTRIBUINTE" required class="border-2 p-2 rounded-lg text-[10px] w-32 uppercase font-bold outline-none">
                         <input type="text" name="telefone" placeholder="TELEFONE" class="border-2 p-2 rounded-lg text-[10px] w-28 uppercase font-bold outline-none">
                         <input type="text" name="pedido" placeholder="PEDIDO / SOLICITAÇÃO" required class="border-2 p-2 rounded-lg text-[10px] flex-1 min-w-[150px] uppercase font-bold outline-none">
                         
-                        <button type="submit" id="btn-submit-op" class="bg-gov-blue text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase shadow-lg hover:bg-blue-900">Salvar na Planilha</button>
+                        <button type="submit" id="btn-submit-op" class="bg-gov-blue text-white px-6 py-2 rounded-xl font-black text-[10px] uppercase shadow-lg hover:bg-blue-900">Salvar Pedido</button>
                     </form>
                 </div>
                 
                 <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
-                    <table id="table-op" class="w-full text-left text-[11px]">
+                    <table id="table-op" class="w-full text-left text-[11px] relative">
                         <thead id="head-op"></thead>
                         <tbody id="body-op" class="divide-y">
-                             <tr><td colspan="12" class="p-20 text-center italic opacity-30">Buscando registros operacionais...</td></tr>
+                             <tr><td colspan="15" class="p-20 text-center italic opacity-30">Buscando registros operacionais...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- AMBIENTE 3: PAINEL ANALÍTICO DINÂMICO -->
+        <!-- AMBIENTE 3: PAINEL ILUMINAÇÃO (EFICIÊNCIA) -->
         <section id="env-painel" class="env-section">
+            <div class="mb-4 bg-orange-100 text-orange-800 p-3 rounded-xl border border-orange-200 text-xs font-black uppercase text-center tracking-widest">
+                <i class="fas fa-lightbulb mr-2"></i> Análise de Eficiência Exclusiva do Departamento de Iluminação
+            </div>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-blue-500 text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Total Filtrado</p><h3 id="d-tot" class="text-4xl font-black text-slate-800">0</h3></div>
                 <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-red-500 text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Pendentes</p><h3 id="d-pen" class="text-4xl font-black text-red-600">0</h3></div>
@@ -137,7 +142,7 @@
             </div>
             <div class="bg-gov-blue text-white p-12 rounded-[50px] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
                 <div class="w-full md:w-2/3">
-                    <p class="text-[10px] font-black opacity-50 uppercase tracking-[0.5em] mb-4 text-orange-400">Diagnóstico Automático Inteligente</p>
+                    <p class="text-[10px] font-black opacity-50 uppercase tracking-[0.5em] mb-4 text-orange-400">Diagnóstico Automático Inteligente (Iluminação)</p>
                     <h4 id="d-dia" class="text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6">Processando banco de dados...</h4>
                     <div class="flex items-center space-x-4 border-t border-white/10 pt-6">
                          <div class="bg-white/10 p-4 rounded-2xl">
@@ -177,7 +182,27 @@
         </div>
     </div>
 
-    <!-- TICKET DE IMPRESSÃO INDIVIDUAL (Invisível até o acionamento) -->
+    <!-- MODAL EDIÇÃO UNIVERSAL (PARA TODAS AS ABAS) -->
+    <div id="modal-edit" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[40px] p-8 max-w-lg w-full shadow-2xl border-t-[20px] border-orange-400 flex flex-col max-h-[90vh]">
+            <h3 class="text-2xl font-black text-gov-blue uppercase italic mb-4 border-b pb-4 tracking-tighter">Editar Registro Existente</h3>
+            <form id="form-edit" onsubmit="submitEdit(event)" class="flex flex-col flex-1 overflow-hidden">
+                <input type="hidden" id="edit-rowId" name="rowId">
+                <input type="hidden" id="edit-target" name="target">
+                
+                <div id="edit-fields" class="space-y-4 mb-6 overflow-y-auto pr-2 flex-1">
+                    <!-- Campos injetados via JavaScript -->
+                </div>
+                
+                <div class="flex space-x-3 pt-4 border-t">
+                    <button type="button" onclick="document.getElementById('modal-edit').classList.add('hidden')" class="w-1/3 text-[11px] font-black uppercase text-red-500 hover:underline">Cancelar</button>
+                    <button type="submit" id="btn-submit-edit" class="w-2/3 bg-orange-400 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-xl hover:bg-orange-500 transition-all">Salvar Modificações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TICKET DE IMPRESSÃO INDIVIDUAL -->
     <div id="print-ticket" class="hidden bg-white p-12 w-full text-black h-screen">
         <div class="text-center mb-8 pb-4 border-b-4 border-black">
             <h1 class="text-3xl font-black uppercase tracking-tighter">Prefeitura Municipal de Cachoeiras de Macacu</h1>
@@ -187,7 +212,7 @@
         
         <div class="grid grid-cols-2 gap-8 text-sm font-bold uppercase mt-8">
             <div class="border-l-4 border-gray-800 pl-4">
-                <span class="text-gray-500 text-xs tracking-widest">Logradouro</span> <br>
+                <span class="text-gray-500 text-xs tracking-widest">Logradouro Completo</span> <br>
                 <span id="pt-rua" class="text-2xl text-black leading-tight"></span>
             </div>
             <div class="border-l-4 border-gray-800 pl-4">
@@ -224,7 +249,7 @@
     </div>
 
     <footer class="w-full text-center py-6 mt-8 text-[10px] text-slate-500 font-bold uppercase tracking-widest no-print opacity-70">
-        Copyright 2026 da Equipe de Administração da Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação da Prefeitura Municipal de Cachoeiras de Macacu - Apache 2.0
+        Copyright 2026 da Equipe de Administração da Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação - Apache 2.0
     </footer>
 
     <script>
@@ -232,6 +257,7 @@
 
         let FULL_DATA = [];
         let RUAS_DB = [];
+        let CURRENT_HEADERS = [];
         let pieC;
 
         window.onload = function() {
@@ -252,34 +278,47 @@
             document.getElementById('env-' + id).classList.add('active');
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('tab-active'));
             document.getElementById('link-' + id).classList.add('tab-active');
+            
+            // O terceiro ambiente agora puxa rigorosamente os dados da Iluminação para o painel
             const targetMap = { fluxo: 'processo', operacional: document.getElementById('op-target').value, painel: 'iluminacao' };
-            loadData(targetMap[id]);
+            loadData(targetMap[id], id === 'painel');
         }
 
-        async function loadData(target) {
-            const body = document.getElementById(target === 'processo' ? 'body-proc' : 'body-op');
-            const head = document.getElementById(target === 'processo' ? 'head-proc' : 'head-op');
+        async function loadData(target, isDashboard = false) {
+            const body = document.getElementById(target === 'processo' && !isDashboard ? 'body-proc' : 'body-op');
+            const head = document.getElementById(target === 'processo' && !isDashboard ? 'head-proc' : 'head-op');
             
-            body.className = "divide-y italic opacity-30";
-            body.innerHTML = "<tr><td colspan='12' class='p-20 text-center font-black animate-pulse'>Sincronizando com Banco de Dados Google...</td></tr>";
+            if(!isDashboard) {
+                body.className = "divide-y italic opacity-30";
+                body.innerHTML = "<tr><td colspan='15' class='p-20 text-center font-black animate-pulse'>Sincronizando com Banco de Dados Google...</td></tr>";
+            }
 
             try {
                 const r = await fetch(`${API_URL}?action=getLista&target=${target}`);
                 const data = await r.json();
                 FULL_DATA = data.rows;
+                CURRENT_HEADERS = data.headers;
 
-                let hHtml = "<tr>";
-                data.headers.forEach((h, i) => {
-                    const uniqueValues = [...new Set(data.rows.map(d => String(d.values[i] || "")))].sort();
-                    hHtml += `<th>${h}<select class="col-filter filter-select" data-index="${i}" onchange="applyFilters()"><option value="">TUDO</option>${uniqueValues.map(v => `<option value="${v}">${v}</option>`).join("")}</select></th>`;
-                });
-                if(target !== 'processo') hHtml += "<th class='no-print'>Ações</th>";
-                head.innerHTML = hHtml + "</tr>";
+                if(!isDashboard) {
+                    let hHtml = "<tr>";
+                    data.headers.forEach((h, i) => {
+                        const uniqueValues = [...new Set(data.rows.map(d => String(d.values[i] || "")))].filter(Boolean).sort();
+                        hHtml += `<th>${h}<select class="col-filter filter-select" data-index="${i}" onchange="applyFilters()"><option value="">[ TODOS ]</option>${uniqueValues.map(v => `<option value="${v}">${v}</option>`).join("")}</select></th>`;
+                    });
+                    
+                    // Coluna de Ações unificada para TODAS as abas (Processos, Iluminação, Entulho)
+                    hHtml += "<th class='no-print text-center'>Ações Operacionais</th></tr>";
+                    head.innerHTML = hHtml;
 
-                renderRows(body, FULL_DATA, target);
+                    renderRows(body, FULL_DATA, target);
+                } else {
+                    updateDashboard(FULL_DATA);
+                }
             } catch(e) { 
-                body.className = "divide-y";
-                body.innerHTML = `<tr><td colspan='12' class='p-20 text-center text-red-500 font-black uppercase tracking-widest'>Falha na Sincronização.</td></tr>`;
+                if(!isDashboard) {
+                    body.className = "divide-y";
+                    body.innerHTML = `<tr><td colspan='15' class='p-20 text-center text-red-500 font-black uppercase tracking-widest'>Falha na Sincronização.</td></tr>`;
+                }
             }
         }
 
@@ -303,37 +342,94 @@
                     tr.appendChild(td);
                 });
 
-                if(target !== 'processo') {
-                    const tdAction = document.createElement('td');
-                    tdAction.className = "text-center no-print flex items-center justify-center gap-3";
-                    
-                    const statusStr = String(item.values[6] || "").trim().toUpperCase();
-                    const dataRealizadoStr = item.values[5];
-                    const isFeito = statusStr === "FEITO" || statusStr === "CONCLUÍDO";
+                // AÇÕES PARA TODAS AS ABAS (Botão Editar e Caixa de Checagem clicável para todos os pendentes)
+                const tdAction = document.createElement('td');
+                tdAction.className = "text-center no-print flex items-center justify-center gap-3";
+                
+                // Mapeamento dinâmico para achar onde está a coluna de Status em qualquer aba
+                let statusIndex = CURRENT_HEADERS.findIndex(h => h.toUpperCase().includes('STATUS'));
+                if(statusIndex === -1) statusIndex = item.values.length - 1; // Fallback
+                
+                const statusStr = String(item.values[statusIndex] || "").trim().toUpperCase();
+                const isFeito = statusStr === "FEITO" || statusStr === "CONCLUÍDO";
 
-                    // Caixa de Cheque interligada diretamente à linha originária da planilha
-                    if(!isFeito && !dataRealizadoStr) {
-                        tdAction.innerHTML = `<input type="checkbox" onclick="confirmDone(this, ${item.rowId}, '${target}')" class="w-4 h-4 cursor-pointer accent-gov-blue hover:scale-110" title="Marcar como FEITO">`;
-                    } else {
-                        let dateDisplay = "---";
-                        if (dataRealizadoStr) {
-                            const parsed = new Date(dataRealizadoStr);
-                            dateDisplay = isNaN(parsed.getTime()) ? dataRealizadoStr : parsed.toLocaleDateString('pt-BR');
-                        }
-                        tdAction.innerHTML = `<span class="text-gov-blue font-black text-[10px] uppercase tracking-tighter flex items-center"><i class="fas fa-check text-green-500 mr-1"></i> ${dateDisplay}</span>`;
-                    }
-                    
-                    // Botão de Impressão Acoplado
-                    tdAction.innerHTML += `<button onclick="printRow(${item.rowId})" class="bg-gray-200 text-gray-700 px-2 py-1 rounded shadow hover:bg-gray-300 transition-all" title="Imprimir OS"><i class="fas fa-print"></i></button>`;
-                    
-                    tr.appendChild(tdAction);
+                if(!isFeito) {
+                    tdAction.innerHTML += `<input type="checkbox" onclick="confirmDone(this, ${item.rowId}, '${target}')" class="w-4 h-4 cursor-pointer accent-gov-blue hover:scale-110" title="Marcar como FEITO (Data de Hoje)">`;
+                } else {
+                    tdAction.innerHTML += `<span class="text-gov-blue font-black text-[10px] uppercase tracking-tighter flex items-center" title="Já finalizado"><i class="fas fa-check-double text-green-500"></i></span>`;
                 }
+                
+                // Botão universal de edição
+                tdAction.innerHTML += `<button onclick="editRow(${item.rowId}, '${target}')" class="bg-orange-100 text-orange-700 px-2 py-1 rounded shadow hover:bg-orange-200 transition-all" title="Editar Registro Existente"><i class="fas fa-edit"></i></button>`;
+                
+                // Botão de impressão (Apenas para abas operacionais)
+                if(target !== 'processo') {
+                    tdAction.innerHTML += `<button onclick="printRow(${item.rowId})" class="bg-gray-200 text-gray-700 px-2 py-1 rounded shadow hover:bg-gray-300 transition-all" title="Imprimir Ordem de Serviço"><i class="fas fa-print"></i></button>`;
+                }
+                
+                tr.appendChild(tdAction);
                 body.appendChild(tr);
             });
             updateDashboard(data);
         }
 
-        // Nova funcionalidade para imprimir uma ficha isolada do pedido
+        // Função de Edição Dinâmica
+        function editRow(rowId, target) {
+            const item = FULL_DATA.find(r => r.rowId === rowId);
+            if(!item) return;
+            
+            document.getElementById('edit-rowId').value = rowId;
+            document.getElementById('edit-target').value = target;
+            
+            const container = document.getElementById('edit-fields');
+            container.innerHTML = "";
+            
+            item.values.forEach((val, i) => {
+                const label = CURRENT_HEADERS[i] || `Campo ${i+1}`;
+                container.innerHTML += `
+                    <div>
+                        <label class="text-[9px] font-black text-gov-blue block uppercase tracking-widest mb-1">${label}:</label>
+                        <input type="text" id="edit-val-${i}" value="${val || ''}" class="w-full border-2 p-2 rounded-lg text-xs font-bold text-slate-700 outline-none focus:border-orange-400">
+                    </div>
+                `;
+            });
+            
+            document.getElementById('modal-edit').classList.remove('hidden');
+        }
+
+        async function submitEdit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-edit');
+            btn.innerText = "GRAVANDO NA PLANILHA..."; 
+            btn.disabled = true;
+            
+            const rowId = document.getElementById('edit-rowId').value;
+            const target = document.getElementById('edit-target').value;
+            
+            let updatedValues = [];
+            let i = 0;
+            while(document.getElementById(`edit-val-${i}`)) {
+                updatedValues.push(document.getElementById(`edit-val-${i}`).value);
+                i++;
+            }
+
+            try {
+                // A chamada exige que exista um tratador "editRow" no código Google Apps Script (backend).
+                // Caso não exista nativamente, o envio fará o processo normal definido pela sua API.
+                const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'editRow', target, rowId, values: updatedValues }) });
+                const res = await r.json();
+                if(res.result === "sucesso") {
+                    alert("O registro foi modificado com sucesso!");
+                    document.getElementById('modal-edit').classList.add('hidden');
+                    loadData(target);
+                }
+            } catch(err) { 
+                alert("Falha ao comunicar a edição. Verifique se a action 'editRow' está mapeada no Apps Script."); 
+            }
+            btn.innerText = "SALVAR MODIFICAÇÕES"; 
+            btn.disabled = false;
+        }
+
         function printRow(rowId) {
             const item = FULL_DATA.find(r => r.rowId === rowId);
             if (!item) return;
@@ -377,7 +473,8 @@
                 });
 
                 let dateMatch = true;
-                const rowDate = new Date(item.values[4]); 
+                const dateIndex = target === 'processo' ? 4 : 4; // Ajuste se for diferente em processo
+                const rowDate = new Date(item.values[dateIndex]); 
                 if(dStart && rowDate < new Date(dStart)) dateMatch = false;
                 if(dEnd && rowDate > new Date(dEnd)) dateMatch = false;
 
@@ -387,7 +484,7 @@
         }
 
         async function confirmDone(checkboxElement, rowId, target) {
-            if(!confirm("Deseja confirmar a execução deste pedido? O status será alterado para FEITO na planilha oficial.")) {
+            if(!confirm("Tem certeza que deseja confirmar a execução? O status será alterado para FEITO e assinado com a data de hoje na planilha oficial.")) {
                 checkboxElement.checked = false; 
                 return;
             }
@@ -396,15 +493,19 @@
             try {
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'concluirPedido', target, rowId }) });
                 const res = await r.json();
-                if(res.result === "sucesso") { alert("OS Concluída!"); loadData(target); } 
+                if(res.result === "sucesso") { alert("Procedimento Concluído com Sucesso!"); loadData(target); } 
                 else { checkboxElement.checked = false; checkboxElement.disabled = false; }
-            } catch(e) { alert("Falha na rede."); checkboxElement.checked = false; checkboxElement.disabled = false; }
+            } catch(e) { alert("Falha na rede ou no servidor."); checkboxElement.checked = false; checkboxElement.disabled = false; }
         }
 
         function updateDashboard(data) {
             const total = data.length;
+            
+            let statusIndex = CURRENT_HEADERS.findIndex(h => h.toUpperCase().includes('STATUS'));
+            if(statusIndex === -1) statusIndex = data.length > 0 ? data[0].values.length - 1 : 6;
+
             const feitos = data.filter(r => {
-                const s = String(r.values[6] || "").trim().toUpperCase();
+                const s = String(r.values[statusIndex] || "").trim().toUpperCase();
                 return s === "FEITO" || s === "CONCLUÍDO";
             }).length;
             
@@ -415,13 +516,13 @@
             document.getElementById('d-pen').innerText = pendentes;
             document.getElementById('d-exe').innerText = feitos;
             document.getElementById('d-efi').innerText = efic + "%";
-            document.getElementById('dash-upd').innerText = new Date().toLocaleTimeString();
+            document.getElementById('dash-upd').innerText = new Date().toLocaleTimeString('pt-BR');
 
             const dia = document.getElementById('d-dia');
-            if(total === 0) { dia.innerText = "SEM DADOS"; dia.classList.replace('text-green-400', 'text-slate-400'); }
-            else if(efic < 50) { dia.innerText = "CRÍTICO: ACÚMULO DE DEMANDAS"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-red-400"; }
-            else if(efic < 80) { dia.innerText = "ATENÇÃO: ACELERAR ROTAS"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-orange-400"; }
-            else { dia.innerText = "EXCELENTE: META ATINGIDA"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-green-400"; }
+            if(total === 0) { dia.innerText = "AGUARDANDO DADOS..."; dia.classList.replace('text-green-400', 'text-slate-400'); }
+            else if(efic < 50) { dia.innerText = "CRÍTICO: ALTO ACÚMULO DE DEMANDAS DE ILUMINAÇÃO"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-red-400"; }
+            else if(efic < 80) { dia.innerText = "ATENÇÃO: ACELERAR ROTAS OPERACIONAIS"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-orange-400"; }
+            else { dia.innerText = "EXCELENTE: ALTA TAXA DE EFICIÊNCIA ATINGIDA"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-green-400"; }
 
             if(pieC) pieC.destroy();
             pieC = new Chart(document.getElementById('chartPie'), {
@@ -434,33 +535,52 @@
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
             btn.innerText = "ENVIANDO..."; btn.disabled = true;
+            
             const formData = new FormData(e.target);
             const d = Object.fromEntries(formData.entries());
-            if(d.rua === "ADD") d.rua = document.getElementById('rua-m').value;
+            
+            if (type === 'operacional') {
+                let ruaBase = d.rua === "ADD" ? document.getElementById('rua-m').value : d.rua;
+                let numStr = d.numero ? " , " + d.numero : "";
+                let compStr = d.complemento ? " (" + d.complemento + ")" : "";
+                
+                // Concatenação estruturada da Rua na coluna A
+                d.rua = ruaBase + numStr + compStr;
+                
+                // Limpeza dos campos temporários para não desestruturar as colunas subsequentes da planilha
+                delete d.numero;
+                delete d.complemento;
+            }
+
             d.target = type === 'processo' ? 'processo' : document.getElementById('op-target').value;
 
             try {
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(d) });
                 const res = await r.json();
                 if(res.result === "sucesso") { 
-                    alert("Cadastrado com sucesso!"); 
+                    alert("Dados inseridos e sincronizados com sucesso!"); 
                     e.target.reset(); 
-                    document.getElementById('modal-p').classList.add('hidden');
+                    if(type === 'processo') document.getElementById('modal-p').classList.add('hidden');
                     loadData(d.target);
                 }
-            } catch(err) { alert("Erro de comunicação."); }
-            btn.disabled = false; btn.innerText = "GRAVAR";
+            } catch(err) { alert("Erro ao comunicar com o servidor Google."); }
+            
+            btn.disabled = false; 
+            btn.innerText = type === 'processo' ? "GRAVAR AGORA" : "SALVAR PEDIDO";
         }
 
         function lookupCEP() { 
             const match = RUAS_DB.find(s => s.cep === document.getElementById('cep').value); 
             if(match) { 
                 document.getElementById('rua').value = match.rua; 
-                document.getElementById('bairro').value = match.bairro; // Agora preenche automaticamente a input criada
+                document.getElementById('bairro').value = match.bairro;
             } 
         }
         
-        function checkManual() { document.getElementById('rua-m').classList.toggle('hidden', document.getElementById('rua').value !== "ADD"); if(!document.getElementById('rua-m').classList.contains('hidden')) document.getElementById('rua-m').focus(); }
+        function checkManual() { 
+            document.getElementById('rua-m').classList.toggle('hidden', document.getElementById('rua').value !== "ADD"); 
+            if(!document.getElementById('rua-m').classList.contains('hidden')) document.getElementById('rua-m').focus(); 
+        }
         
         function setOp(t) { 
             document.getElementById('op-target').value = t;
