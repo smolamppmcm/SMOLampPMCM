@@ -15,15 +15,11 @@
         .nav-link:hover { opacity: 1; }
         .env-section { display: none; } .env-section.active { display: block !important; }
         
-        /* Ajuste minucioso para cabeçalhos e filtros visíveis */
+        /* Cabeçalhos fixos ancorados perfeitamente no topo do contêiner de rolagem */
         th { font-size: 9px; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; position: sticky; top: 0; z-index: 30; color: #64748b; }
         td { font-size: 10px; border: 1px solid #f1f5f9; padding: 8px; white-space: nowrap; font-weight: 700; color: #002d5e !important; }
         
         .filter-select { width: 100%; font-size: 9px; border: 1px solid #94a3b8; border-radius: 4px; margin-top: 5px; padding: 2px; color: #000; font-weight: bold; background-color: #fff; cursor: pointer; }
-        
-        /* Rotações removidas para corrigir e preservar a ancoragem (sticky) dos filtros no alto da tabela */
-        .scroll-top-wrapper { }
-        .scroll-top-wrapper table { }
         
         @media print { 
             body * { visibility: hidden; }
@@ -79,7 +75,8 @@
                     <h2 class="text-xs font-black uppercase text-gov-blue italic">Controle de Fluxo de Processos Administrativos</h2>
                     <button onclick="document.getElementById('modal-p').classList.remove('hidden')" class="bg-gov-blue text-white px-6 py-2 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 transition-all">+ NOVO PROCESSO</button>
                 </div>
-                <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
+                <!-- Contêiner ajustado com overflow-auto para garantir rolagem interna e ancoragem perfeita dos filtros -->
+                <div class="overflow-auto h-[650px] relative">
                     <table id="table-proc" class="w-full text-left relative">
                         <thead id="head-proc"></thead>
                         <tbody id="body-proc" class="divide-y">
@@ -106,7 +103,7 @@
                         <select id="rua" name="rua" onchange="checkManual()" class="border-2 p-2 rounded-lg text-[10px] w-40 font-black shadow-inner outline-none"></select>
                         <input type="text" id="rua-m" class="hidden border-2 border-orange-200 p-2 rounded-lg text-[10px] w-40 bg-orange-50 font-bold" placeholder="Nome da rua...">
                         
-                        <!-- Novos campos: Número e Complemento -->
+                        <!-- Campos Número e Complemento -->
                         <input type="text" id="numero" name="numero" placeholder="Nº" class="border-2 p-2 rounded-lg text-[10px] w-16 font-bold outline-none focus:border-orange-400">
                         <input type="text" id="complemento" name="complemento" placeholder="COMPLEMENTO" class="border-2 p-2 rounded-lg text-[10px] w-32 font-bold outline-none focus:border-orange-400">
                         
@@ -119,7 +116,8 @@
                     </form>
                 </div>
                 
-                <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
+                <!-- Contêiner ajustado com overflow-auto para garantir rolagem interna e ancoragem perfeita dos filtros -->
+                <div class="overflow-auto h-[650px] relative">
                     <table id="table-op" class="w-full text-left text-[11px] relative">
                         <thead id="head-op"></thead>
                         <tbody id="body-op" class="divide-y">
@@ -163,7 +161,7 @@
     <!-- MODAL NOVO PROCESSO -->
     <div id="modal-p" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-[40px] p-10 max-w-md w-full shadow-2xl border-t-[20px] border-gov-blue animate-in fade-in zoom-in duration-300">
-            <form id="form-p" onsubmit="submitData(event, 'processo')">
+            <form id="form-p" onsubmit="submitData(event, 'Processos')">
                 <h3 class="text-2xl font-black text-gov-blue uppercase italic mb-6 border-b pb-4 tracking-tighter">Novo Protocolo SMO</h3>
                 <label class="text-[10px] font-black text-gray-400 mb-1 block uppercase tracking-widest">Nº do Processo:</label>
                 <input type="text" name="p_numero" placeholder="EX: 2068/2026" required class="w-full border-2 p-3 rounded-2xl mb-4 font-black text-lg outline-none focus:border-blue-500 shadow-inner">
@@ -183,7 +181,7 @@
         </div>
     </div>
 
-    <!-- MODAL EDIÇÃO UNIVERSAL (PARA TODAS AS ABAS) -->
+    <!-- MODAL EDIÇÃO UNIVERSAL -->
     <div id="modal-edit" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
         <div class="bg-white rounded-[40px] p-8 max-w-lg w-full shadow-2xl border-t-[20px] border-orange-400 flex flex-col max-h-[90vh]">
             <h3 class="text-2xl font-black text-gov-blue uppercase italic mb-4 border-b pb-4 tracking-tighter">Editar Registro Existente</h3>
@@ -280,14 +278,14 @@
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('tab-active'));
             document.getElementById('link-' + id).classList.add('tab-active');
             
-            // O terceiro ambiente agora puxa rigorosamente os dados da Iluminação para o painel
-            const targetMap = { fluxo: 'processo', operacional: document.getElementById('op-target').value, painel: 'iluminacao' };
+            // Mapeamento corrigido para 'Processos' com inicial maiúscula para alinhar com o Apps Script
+            const targetMap = { fluxo: 'Processos', operacional: document.getElementById('op-target').value, painel: 'iluminacao' };
             loadData(targetMap[id], id === 'painel');
         }
 
         async function loadData(target, isDashboard = false) {
-            const body = document.getElementById(target === 'processo' && !isDashboard ? 'body-proc' : 'body-op');
-            const head = document.getElementById(target === 'processo' && !isDashboard ? 'head-proc' : 'head-op');
+            const body = document.getElementById(target === 'Processos' && !isDashboard ? 'body-proc' : 'body-op');
+            const head = document.getElementById(target === 'Processos' && !isDashboard ? 'head-proc' : 'head-op');
             
             if(!isDashboard) {
                 body.className = "divide-y italic opacity-30";
@@ -307,7 +305,6 @@
                         hHtml += `<th>${h}<select class="col-filter filter-select" data-index="${i}" onchange="applyFilters()"><option value="">[ TODOS ]</option>${uniqueValues.map(v => `<option value="${v}">${v}</option>`).join("")}</select></th>`;
                     });
                     
-                    // Coluna de Ações unificada para TODAS as abas (Processos, Iluminação, Entulho)
                     hHtml += "<th class='no-print text-center'>Ações Operacionais</th></tr>";
                     head.innerHTML = hHtml;
 
@@ -343,13 +340,11 @@
                     tr.appendChild(td);
                 });
 
-                // AÇÕES PARA TODAS AS ABAS (Botão Editar e Caixa de Checagem clicável para todos os pendentes)
                 const tdAction = document.createElement('td');
                 tdAction.className = "text-center no-print flex items-center justify-center gap-3";
                 
-                // Mapeamento dinâmico para achar onde está a coluna de Status em qualquer aba
                 let statusIndex = CURRENT_HEADERS.findIndex(h => h.toUpperCase().includes('STATUS'));
-                if(statusIndex === -1) statusIndex = item.values.length - 1; // Fallback
+                if(statusIndex === -1) statusIndex = item.values.length - 1;
                 
                 const statusStr = String(item.values[statusIndex] || "").trim().toUpperCase();
                 const isFeito = statusStr === "FEITO" || statusStr === "CONCLUÍDO";
@@ -360,11 +355,9 @@
                     tdAction.innerHTML += `<span class="text-gov-blue font-black text-[10px] uppercase tracking-tighter flex items-center" title="Já finalizado"><i class="fas fa-check-double text-green-500"></i></span>`;
                 }
                 
-                // Botão universal de edição
                 tdAction.innerHTML += `<button onclick="editRow(${item.rowId}, '${target}')" class="bg-orange-100 text-orange-700 px-2 py-1 rounded shadow hover:bg-orange-200 transition-all" title="Editar Registro Existente"><i class="fas fa-edit"></i></button>`;
                 
-                // Botão de impressão (Apenas para abas operacionais)
-                if(target !== 'processo') {
+                if(target !== 'Processos') {
                     tdAction.innerHTML += `<button onclick="printRow(${item.rowId})" class="bg-gray-200 text-gray-700 px-2 py-1 rounded shadow hover:bg-gray-300 transition-all" title="Imprimir Ordem de Serviço"><i class="fas fa-print"></i></button>`;
                 }
                 
@@ -374,7 +367,6 @@
             updateDashboard(data);
         }
 
-        // Função de Edição Dinâmica
         function editRow(rowId, target) {
             const item = FULL_DATA.find(r => r.rowId === rowId);
             if(!item) return;
@@ -415,8 +407,6 @@
             }
 
             try {
-                // A chamada exige que exista um tratador "editRow" no código Google Apps Script (backend).
-                // Caso não exista nativamente, o envio fará o processo normal definido pela sua API.
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'editRow', target, rowId, values: updatedValues }) });
                 const res = await r.json();
                 if(res.result === "sucesso") {
@@ -453,7 +443,7 @@
         function clearAllFilters() {
             document.getElementById('date-start').value = "";
             document.getElementById('date-end').value = "";
-            document.querySelectorAll('.filter-select').forEach(s => s.value = "");
+            document.querySelectorAll('.filter-select').forEach(s => s.value = "";);
             applyFilters();
         }
 
@@ -461,7 +451,7 @@
             const activeTab = document.querySelector('.env-section.active').id;
             const tableId = activeTab === 'env-fluxo' ? 'table-proc' : 'table-op';
             const bodyId = activeTab === 'env-fluxo' ? 'body-proc' : 'body-op';
-            const target = activeTab === 'env-fluxo' ? 'processo' : document.getElementById('op-target').value;
+            const target = activeTab === 'env-fluxo' ? 'Processos' : document.getElementById('op-target').value;
 
             const selects = document.getElementById(tableId).querySelectorAll('.col-filter');
             const dStart = document.getElementById('date-start').value;
@@ -474,7 +464,7 @@
                 });
 
                 let dateMatch = true;
-                const dateIndex = target === 'processo' ? 4 : 4; // Ajuste se for diferente em processo
+                const dateIndex = 4;
                 const rowDate = new Date(item.values[dateIndex]); 
                 if(dStart && rowDate < new Date(dStart)) dateMatch = false;
                 if(dEnd && rowDate > new Date(dEnd)) dateMatch = false;
@@ -545,15 +535,13 @@
                 let numStr = d.numero ? " , " + d.numero : "";
                 let compStr = d.complemento ? " (" + d.complemento + ")" : "";
                 
-                // Concatenação estruturada da Rua na coluna A
                 d.rua = ruaBase + numStr + compStr;
                 
-                // Limpeza dos campos temporários para não desestruturar as colunas subsequentes da planilha
                 delete d.numero;
                 delete d.complemento;
             }
 
-            d.target = type === 'processo' ? 'processo' : document.getElementById('op-target').value;
+            d.target = type === 'Processos' ? 'Processos' : document.getElementById('op-target').value;
 
             try {
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(d) });
@@ -561,13 +549,13 @@
                 if(res.result === "sucesso") { 
                     alert("Dados inseridos e sincronizados com sucesso!"); 
                     e.target.reset(); 
-                    if(type === 'processo') document.getElementById('modal-p').classList.add('hidden');
+                    if(type === 'Processos') document.getElementById('modal-p').classList.add('hidden');
                     loadData(d.target);
                 }
             } catch(err) { alert("Erro ao comunicar com o servidor Google."); }
             
             btn.disabled = false; 
-            btn.innerText = type === 'processo' ? "GRAVAR AGORA" : "SALVAR PEDIDO";
+            btn.innerText = type === 'Processos' ? "GRAVAR AGORA" : "SALVAR PEDIDO";
         }
 
         function lookupCEP() { 
