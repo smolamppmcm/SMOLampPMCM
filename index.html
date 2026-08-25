@@ -1,6 +1,3 @@
-Análise detalhada do código revela o motivo exato da falha: nas versões anteriores que funcionavam perfeitamente, o parâmetro de rota enviado pelo front-end para o Ambiente 1 era fluxo.
-Em modificações recentes, o identificador foi alterado para Processos. Como o código do servidor (Google Apps Script) permaneceu inalterado e foi programado para reconhecer exclusivamente a chave original fluxo, a API não encontrou correspondência para Processos e caiu no caso padrão ou subsidiário, retornando por consequência a aba Entulho da planilha de solicitações.
-O código completo a seguir corrige essa divergência ao restaurar o parâmetro correto fluxo, mantendo o restante da aplicação rigorosamente ipsis litteris:
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
