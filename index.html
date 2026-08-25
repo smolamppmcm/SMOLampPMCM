@@ -273,13 +273,13 @@
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('tab-active'));
             document.getElementById('link-' + id).classList.add('tab-active');
             
-            const targetMap = { fluxo: '001 - Controle de Fluxo de Processos', operacional: document.getElementById('op-target').value, painel: 'iluminacao' };
+            const targetMap = { fluxo: 'Processos', operacional: document.getElementById('op-target').value, painel: 'iluminacao' };
             loadData(targetMap[id], id === 'painel');
         }
 
         async function loadData(target, isDashboard = false) {
-            const body = document.getElementById(target === '001 - Controle de Fluxo de Processos' && !isDashboard ? 'body-proc' : 'body-op');
-            const head = document.getElementById(target === '001 - Controle de Fluxo de Processos' && !isDashboard ? 'head-proc' : 'head-op');
+            const body = document.getElementById(target === 'Processos' && !isDashboard ? 'body-proc' : 'body-op');
+            const head = document.getElementById(target === 'Processos' && !isDashboard ? 'head-proc' : 'head-op');
             
             if(!isDashboard) {
                 body.className = "divide-y italic opacity-30";
@@ -351,7 +351,7 @@
                 
                 tdAction.innerHTML += `<button onclick="editRow(${item.rowId}, '${target}')" class="bg-orange-100 text-orange-700 px-2 py-1 rounded shadow hover:bg-orange-200 transition-all" title="Editar Registro Existente"><i class="fas fa-edit"></i></button>`;
                 
-                if(target !== '001 - Controle de Fluxo de Processos') {
+                if(target !== 'Processos') {
                     tdAction.innerHTML += `<button onclick="printRow(${item.rowId})" class="bg-gray-200 text-gray-700 px-2 py-1 rounded shadow hover:bg-gray-300 transition-all" title="Imprimir Ordem de Serviço"><i class="fas fa-print"></i></button>`;
                 }
                 
@@ -445,7 +445,7 @@
             const activeTab = document.querySelector('.env-section.active').id;
             const tableId = activeTab === 'env-fluxo' ? 'table-proc' : 'table-op';
             const bodyId = activeTab === 'env-fluxo' ? 'body-proc' : 'body-op';
-            const target = activeTab === 'env-fluxo' ? '001 - Controle de Fluxo de Processos' : document.getElementById('op-target').value;
+            const target = activeTab === 'env-fluxo' ? 'Processos' : document.getElementById('op-target').value;
 
             const selects = document.getElementById(tableId).querySelectorAll('.col-filter');
             const dStart = document.getElementById('date-start').value;
@@ -535,7 +535,7 @@
                 delete d.complemento;
             }
 
-            d.target = (type === '001 - Controle de Fluxo de Processos' || type === 'processo') ? '001 - Controle de Fluxo de Processos' : document.getElementById('op-target').value;
+            d.target = (type === 'Processos' || type === 'processo') ? 'Processos' : document.getElementById('op-target').value;
 
             try {
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(d) });
@@ -543,7 +543,7 @@
                 if(res.result === "sucesso") { 
                     alert("Dados inseridos e sincronizados com sucesso!"); 
                     event.target.reset(); 
-                    if(type === 'processo' || type === '001 - Controle de Fluxo de Processos') document.getElementById('modal-p').classList.add('hidden');
+                    if(type === 'processo' || type === 'Processos') document.getElementById('modal-p').classList.add('hidden');
                     loadData(d.target);
                 }
             } catch(err) { alert("Erro ao comunicar com o servidor Google."); }
@@ -574,3 +574,4 @@
     </script>
 </body>
 </html>
+
