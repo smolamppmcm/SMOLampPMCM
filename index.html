@@ -451,6 +451,9 @@
             const dStart = document.getElementById('date-start').value;
             const dEnd = document.getElementById('date-end').value;
 
+            // Identificação dinâmica da coluna de data para evitar quebra de índice fixo
+            const dateIndex = CURRENT_HEADERS.findIndex(h => h.toUpperCase().includes('DATA') || h.toUpperCase().includes('REGISTRO'));
+
             const filtered = FULL_DATA.filter(item => {
                 const selectMatch = Array.from(selects).every(s => {
                     if(!s.value) return true;
@@ -458,10 +461,13 @@
                 });
 
                 let dateMatch = true;
-                const dateIndex = 4;
-                const rowDate = new Date(item.values[dateIndex]); 
-                if(dStart && rowDate < new Date(dStart)) dateMatch = false;
-                if(dEnd && rowDate > new Date(dEnd)) dateMatch = false;
+                if(dateIndex !== -1 && (dStart || dEnd)) {
+                    const rowDate = new Date(item.values[dateIndex]);
+                    if(!isNaN(rowDate.getTime())) {
+                        if(dStart && rowDate < new Date(dStart)) dateMatch = false;
+                        if(dEnd && rowDate > new Date(dEnd)) dateMatch = false;
+                    }
+                }
 
                 return selectMatch && dateMatch;
             });
@@ -574,4 +580,3 @@
     </script>
 </body>
 </html>
-
