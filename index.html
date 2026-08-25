@@ -74,11 +74,11 @@
                     <h2 class="text-xs font-black uppercase text-gov-blue italic">Controle de Fluxo de Processos Administrativos</h2>
                     <button onclick="document.getElementById('modal-p').classList.remove('hidden')" class="bg-gov-blue text-white px-6 py-2 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 transition-all">+ NOVO PROCESSO</button>
                 </div>
-                <div class="overflow-auto h-[650px] relative">
-                    <table id="table-proc" class="w-full text-left relative">
+                <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
+                    <table id="table-proc" class="w-full text-left">
                         <thead id="head-proc"></thead>
                         <tbody id="body-proc" class="divide-y">
-                             <tr><td colspan="15" class="p-20 text-center italic opacity-30">Iniciando conexão com o servidor...</td></tr>
+                             <tr><td colspan="10" class="p-20 text-center italic opacity-30">Iniciando conexão com o servidor...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -157,7 +157,7 @@
     <!-- MODAL NOVO PROCESSO -->
     <div id="modal-p" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-[40px] p-10 max-w-md w-full shadow-2xl border-t-[20px] border-gov-blue animate-in fade-in zoom-in duration-300">
-            <form id="form-p" onsubmit="submitData(event, '001 - Controle de Fluxo de Processos')">
+            <form id="form-p" onsubmit="submitData(event, 'processo')">
                 <h3 class="text-2xl font-black text-gov-blue uppercase italic mb-6 border-b pb-4 tracking-tighter">Novo Protocolo SMO</h3>
                 <label class="text-[10px] font-black text-gray-400 mb-1 block uppercase tracking-widest">Nº do Processo:</label>
                 <input type="text" name="p_numero" placeholder="EX: 2068/2026" required class="w-full border-2 p-3 rounded-2xl mb-4 font-black text-lg outline-none focus:border-blue-500 shadow-inner">
@@ -535,7 +535,7 @@
                 delete d.complemento;
             }
 
-            d.target = type === '001 - Controle de Fluxo de Processos' ? '001 - Controle de Fluxo de Processos' : document.getElementById('op-target').value;
+            d.target = (type === '001 - Controle de Fluxo de Processos' || type === 'processo') ? '001 - Controle de Fluxo de Processos' : document.getElementById('op-target').value;
 
             try {
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(d) });
@@ -543,13 +543,13 @@
                 if(res.result === "sucesso") { 
                     alert("Dados inseridos e sincronizados com sucesso!"); 
                     event.target.reset(); 
-                    if(type === '001 - Controle de Fluxo de Processos') document.getElementById('modal-p').classList.add('hidden');
+                    if(type === 'processo' || type === '001 - Controle de Fluxo de Processos') document.getElementById('modal-p').classList.add('hidden');
                     loadData(d.target);
                 }
             } catch(err) { alert("Erro ao comunicar com o servidor Google."); }
             
             btn.disabled = false; 
-            btn.innerText = type === '001 - Controle de Fluxo de Processos' ? "GRAVAR AGORA" : "SALVAR PEDIDO";
+            btn.innerText = (type === 'processo') ? "GRAVAR AGORA" : "SALVAR PEDIDO";
         }
 
         function lookupCEP() { 
