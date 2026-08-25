@@ -1,4 +1,4 @@
-SMOLamp - Versão 1.0.A
+SMOLamp - Versão 1.0.A1
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -284,7 +284,6 @@ SMOLamp - Versão 1.0.A
                 const r = await fetch(`${API_URL}?action=getLista&target=${target}`);
                 const json = await r.json();
                 
-                // Camada de normalização robusta: suporta objetos {rows, headers}, arrays puros ou variações de chaves
                 let rows = [];
                 let headers = [];
 
@@ -347,8 +346,8 @@ SMOLamp - Versão 1.0.A
                 container.innerHTML = "<p class='text-xs font-bold text-red-500'>Aguarde o carregamento dos cabeçalhos da planilha...</p>";
             } else {
                 CURRENT_HEADERS.forEach((h, idx) => {
-                    const hUpper = h.toUpperCase();
-                    if (hUpper.includes('STATUS')) return; // Status gerado automaticamente no backend
+                    const hUpper = String(h).toUpperCase();
+                    if (hUpper.includes('STATUS')) return;
 
                     const isOptional = hUpper.includes('ANDAMENTO') || hUpper.includes('1.º ANDAMENTO');
                     const reqAttr = isOptional ? '' : 'required';
@@ -404,7 +403,7 @@ SMOLamp - Versão 1.0.A
                 const tdAction = document.createElement('td');
                 tdAction.className = "text-center no-print flex items-center justify-center gap-3";
                 
-                let statusIndex = CURRENT_HEADERS.findIndex(h => h.toUpperCase().includes('STATUS'));
+                let statusIndex = CURRENT_HEADERS.findIndex(h => String(h).toUpperCase().includes('STATUS'));
                 if(statusIndex === -1 && item.values) statusIndex = item.values.length - 1;
                 
                 const statusStr = item.values && item.values[statusIndex] ? String(item.values[statusIndex]).trim().toUpperCase() : "";
@@ -439,8 +438,8 @@ SMOLamp - Versão 1.0.A
             container.innerHTML = "";
             
             item.values.forEach((val, i) => {
-                const label = CURRENT_HEADERS[i] || `Campo ${i+1}`;
-                const hUpper = label.toUpperCase();
+                const label = CURRENT_HEADERS[i] !== undefined ? CURRENT_HEADERS[i] : `Campo ${i+1}`;
+                const hUpper = String(label).toUpperCase();
                 
                 let inputMarkup = `<input type="text" id="edit-val-${i}" value="${val || ''}" class="w-full border-2 p-2 rounded-lg text-xs font-bold text-slate-700 outline-none focus:border-orange-400">`;
 
@@ -534,7 +533,7 @@ SMOLamp - Versão 1.0.A
             const dStart = document.getElementById('date-start').value;
             const dEnd = document.getElementById('date-end').value;
 
-            const dateIndex = CURRENT_HEADERS.findIndex(h => h.toUpperCase().includes('DATA') || h.toUpperCase().includes('REGISTRO'));
+            const dateIndex = CURRENT_HEADERS.findIndex(h => String(h).toUpperCase().includes('DATA') || String(h).toUpperCase().includes('REGISTRO'));
 
             const filtered = FULL_DATA.filter(item => {
                 const selectMatch = Array.from(selects).every(s => {
@@ -574,7 +573,7 @@ SMOLamp - Versão 1.0.A
         function updateDashboard(data) {
             const total = data.length;
             
-            let statusIndex = CURRENT_HEADERS.findIndex(h => h.toUpperCase().includes('STATUS'));
+            let statusIndex = CURRENT_HEADERS.findIndex(h => String(h).toUpperCase().includes('STATUS'));
             if(statusIndex === -1) statusIndex = data.length > 0 && data[0].values ? data[0].values.length - 1 : 6;
 
             const feitos = data.filter(r => {
