@@ -15,7 +15,6 @@
         .nav-link:hover { opacity: 1; }
         .env-section { display: none; } .env-section.active { display: block !important; }
         
-        /* Cabeçalhos fixos ancorados perfeitamente no topo do contêiner de rolagem */
         th { font-size: 9px; text-transform: uppercase; background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; position: sticky; top: 0; z-index: 30; color: #64748b; }
         td { font-size: 10px; border: 1px solid #f1f5f9; padding: 8px; white-space: nowrap; font-weight: 700; color: #002d5e !important; }
         
@@ -75,7 +74,6 @@
                     <h2 class="text-xs font-black uppercase text-gov-blue italic">Controle de Fluxo de Processos Administrativos</h2>
                     <button onclick="document.getElementById('modal-p').classList.remove('hidden')" class="bg-gov-blue text-white px-6 py-2 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 transition-all">+ NOVO PROCESSO</button>
                 </div>
-                <!-- Contêiner ajustado com overflow-auto para garantir rolagem interna e ancoragem perfeita dos filtros -->
                 <div class="overflow-auto h-[650px] relative">
                     <table id="table-proc" class="w-full text-left relative">
                         <thead id="head-proc"></thead>
@@ -103,7 +101,6 @@
                         <select id="rua" name="rua" onchange="checkManual()" class="border-2 p-2 rounded-lg text-[10px] w-40 font-black shadow-inner outline-none"></select>
                         <input type="text" id="rua-m" class="hidden border-2 border-orange-200 p-2 rounded-lg text-[10px] w-40 bg-orange-50 font-bold" placeholder="Nome da rua...">
                         
-                        <!-- Campos Número e Complemento -->
                         <input type="text" id="numero" name="numero" placeholder="Nº" class="border-2 p-2 rounded-lg text-[10px] w-16 font-bold outline-none focus:border-orange-400">
                         <input type="text" id="complemento" name="complemento" placeholder="COMPLEMENTO" class="border-2 p-2 rounded-lg text-[10px] w-32 font-bold outline-none focus:border-orange-400">
                         
@@ -116,7 +113,6 @@
                     </form>
                 </div>
                 
-                <!-- Contêiner ajustado com overflow-auto para garantir rolagem interna e ancoragem perfeita dos filtros -->
                 <div class="overflow-auto h-[650px] relative">
                     <table id="table-op" class="w-full text-left text-[11px] relative">
                         <thead id="head-op"></thead>
@@ -190,7 +186,6 @@
                 <input type="hidden" id="edit-target" name="target">
                 
                 <div id="edit-fields" class="space-y-4 mb-6 overflow-y-auto pr-2 flex-1">
-                    <!-- Campos injetados via JavaScript -->
                 </div>
                 
                 <div class="flex space-x-3 pt-4 border-t">
@@ -278,7 +273,6 @@
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('tab-active'));
             document.getElementById('link-' + id).classList.add('tab-active');
             
-            // Mapeamento atualizado para apontar rigorosamente para o arquivo "001 - Controle de Fluxo de Processos" no Ambiente 1
             const targetMap = { fluxo: '001 - Controle de Fluxo de Processos', operacional: document.getElementById('op-target').value, painel: 'iluminacao' };
             loadData(targetMap[id], id === 'painel');
         }
@@ -415,7 +409,7 @@
                     loadData(target);
                 }
             } catch(err) { 
-                alert("Falha ao comunicar a edição. Verifique se a action 'editRow' está mapeada no Apps Script."); 
+                alert("Falha ao comunicar a edição."); 
             }
             btn.innerText = "SALVAR MODIFICAÇÕES"; 
             btn.disabled = false;
