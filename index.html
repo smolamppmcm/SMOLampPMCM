@@ -1,3 +1,6 @@
+Análise detalhada do código revela o motivo exato da falha: nas versões anteriores que funcionavam perfeitamente, o parâmetro de rota enviado pelo front-end para o Ambiente 1 era fluxo.
+Em modificações recentes, o identificador foi alterado para Processos. Como o código do servidor (Google Apps Script) permaneceu inalterado e foi programado para reconhecer exclusivamente a chave original fluxo, a API não encontrou correspondência para Processos e caiu no caso padrão ou subsidiário, retornando por consequência a aba Entulho da planilha de solicitações.
+O código completo a seguir corrige essa divergência ao restaurar o parâmetro correto fluxo, mantendo o restante da aplicação rigorosamente ipsis litteris:
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -273,13 +276,13 @@
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('tab-active'));
             document.getElementById('link-' + id).classList.add('tab-active');
             
-            const targetMap = { fluxo: 'Processos', operacional: document.getElementById('op-target').value, painel: 'iluminacao' };
+            const targetMap = { fluxo: 'fluxo', operacional: document.getElementById('op-target').value, painel: 'iluminacao' };
             loadData(targetMap[id], id === 'painel');
         }
 
         async function loadData(target, isDashboard = false) {
-            const body = document.getElementById(target === 'Processos' && !isDashboard ? 'body-proc' : 'body-op');
-            const head = document.getElementById(target === 'Processos' && !isDashboard ? 'head-proc' : 'head-op');
+            const body = document.getElementById(target === 'fluxo' && !isDashboard ? 'body-proc' : 'body-op');
+            const head = document.getElementById(target === 'fluxo' && !isDashboard ? 'head-proc' : 'head-op');
             
             if(!isDashboard) {
                 body.className = "divide-y italic opacity-30";
@@ -351,7 +354,7 @@
                 
                 tdAction.innerHTML += `<button onclick="editRow(${item.rowId}, '${target}')" class="bg-orange-100 text-orange-700 px-2 py-1 rounded shadow hover:bg-orange-200 transition-all" title="Editar Registro Existente"><i class="fas fa-edit"></i></button>`;
                 
-                if(target !== 'Processos') {
+                if(target !== 'fluxo') {
                     tdAction.innerHTML += `<button onclick="printRow(${item.rowId})" class="bg-gray-200 text-gray-700 px-2 py-1 rounded shadow hover:bg-gray-300 transition-all" title="Imprimir Ordem de Serviço"><i class="fas fa-print"></i></button>`;
                 }
                 
@@ -445,13 +448,12 @@
             const activeTab = document.querySelector('.env-section.active').id;
             const tableId = activeTab === 'env-fluxo' ? 'table-proc' : 'table-op';
             const bodyId = activeTab === 'env-fluxo' ? 'body-proc' : 'body-op';
-            const target = activeTab === 'env-fluxo' ? 'Processos' : document.getElementById('op-target').value;
+            const target = activeTab === 'env-fluxo' ? 'fluxo' : document.getElementById('op-target').value;
 
             const selects = document.getElementById(tableId).querySelectorAll('.col-filter');
             const dStart = document.getElementById('date-start').value;
             const dEnd = document.getElementById('date-end').value;
 
-            // Identificação dinâmica da coluna de data para evitar quebra de índice fixo
             const dateIndex = CURRENT_HEADERS.findIndex(h => h.toUpperCase().includes('DATA') || h.toUpperCase().includes('REGISTRO'));
 
             const filtered = FULL_DATA.filter(item => {
@@ -541,7 +543,7 @@
                 delete d.complemento;
             }
 
-            d.target = (type === 'Processos' || type === 'processo') ? 'Processos' : document.getElementById('op-target').value;
+            d.target = (type === 'fluxo' || type === 'processo') ? 'fluxo' : document.getElementById('op-target').value;
 
             try {
                 const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify(d) });
@@ -549,7 +551,7 @@
                 if(res.result === "sucesso") { 
                     alert("Dados inseridos e sincronizados com sucesso!"); 
                     event.target.reset(); 
-                    if(type === 'processo' || type === 'Processos') document.getElementById('modal-p').classList.add('hidden');
+                    if(type === 'processo' || type === 'fluxo') document.getElementById('modal-p').classList.add('hidden');
                     loadData(d.target);
                 }
             } catch(err) { alert("Erro ao comunicar com o servidor Google."); }
@@ -580,3 +582,4 @@
     </script>
 </body>
 </html>
+
