@@ -371,7 +371,7 @@
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('tab-active'));
             document.getElementById('link-' + id).classList.add('tab-active');
             
-            const targetMap = { fluxo: 'processo', operacional: document.getElementById('op-target').value, painel: 'iluminacao' };
+            const targetMap = { fluxo: 'processo', operacional: document.getElementById('op-target').value, painel: 'painel' };
             loadData(targetMap[id], id === 'painel');
         }
 
