@@ -22,8 +22,9 @@
         
         @media print { 
             body * { visibility: hidden; }
-            #print-ticket, #print-ticket * { visibility: visible; }
+            #print-ticket, #print-ticket *, #print-report-painel, #print-report-painel * { visibility: visible; }
             #print-ticket { position: absolute; left: 0; top: 0; width: 100%; display: block !important; }
+            #print-report-painel { position: absolute; left: 0; top: 0; width: 100%; display: block !important; }
             .no-print { display: none !important; }
         }
     </style>
@@ -36,7 +37,7 @@
                 <i class="fas fa-landmark text-2xl text-orange-400"></i>
                 <div>
                     <h1 class="font-black uppercase italic tracking-tighter text-lg leading-none">Cachoeiras de Macacu <span class="text-orange-400 font-light">Digital</span></h1>
-                    <p class="text-[9px] font-bold opacity-50 tracking-widest uppercase">Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação</p>
+                    <p class="text-[9px] font-bold opacity-50 tracking-widest uppercase">Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação - SMOLamp</p>
                 </div>
             </div>
             <button onclick="window.print()" class="bg-white/10 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all">
@@ -67,7 +68,6 @@
             <div id="relogio" class="ml-auto text-[10px] font-mono opacity-40"></div>
         </div>
 
-        <!-- AMBIENTE 1: PROCESSOS -->
         <section id="env-fluxo" class="env-section active">
             <div class="bg-white rounded-2xl shadow-xl border-t-8 border-gov-blue overflow-hidden">
                 <div class="p-6 border-b flex justify-between items-center no-print bg-slate-50/50">
@@ -85,7 +85,6 @@
             </div>
         </section>
 
-        <!-- AMBIENTE 2: OPERACIONAL (ILUMINAÇÃO/ENTULHO) -->
         <section id="env-operacional" class="env-section">
             <div class="bg-white rounded-2xl shadow-xl border-t-8 border-gov-blue overflow-hidden">
                 <div class="p-6 border-b flex flex-col gap-4 no-print bg-slate-50/50">
@@ -124,141 +123,100 @@
             </div>
         </section>
 
-        <!-- AMBIENTE 3: PAINEL ILUMINAÇÃO (EFICIÊNCIA E MÉTRICAS COMPLETAS) -->
         <section id="env-painel" class="env-section">
-            <div class="mb-4 bg-orange-100 text-orange-800 p-3 rounded-xl border border-orange-200 text-xs font-black uppercase text-center tracking-widest">
-                <i class="fas fa-lightbulb mr-2"></i> Análise de Eficiência Exclusiva e Painel Consolidado do Departamento de Iluminação
+            <div class="mb-4 bg-orange-100 text-orange-800 p-3 rounded-xl border border-orange-200 text-xs font-black uppercase text-center tracking-widest flex items-center justify-center gap-2">
+                <i class="fas fa-lightbulb"></i> Análise de Eficiência Exclusiva do Departamento de Iluminação
             </div>
 
-            <!-- Cards Principais -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap items-center justify-between gap-4 border border-slate-200 no-print">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-100 p-2.5 rounded-xl text-blue-700">
+                        <i class="fas fa-cloud-showers-heavy text-xl"></i>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-700 block">Dias de Inoperância Meteorológica (Chuva):</label>
+                        <p class="text-[9px] font-bold text-slate-400">Ajusta os cálculos de produtividade e capacidade diária considerando restrições da NR-35/NR-10</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="dias-chuva" min="0" max="31" value="0" onchange="applyFilters()" onkeyup="applyFilters()" class="w-24 border-2 border-slate-300 p-2 rounded-xl font-black text-center text-sm outline-none focus:border-gov-blue bg-slate-50 text-slate-800">
+                    <span class="text-xs font-bold text-slate-500 uppercase">dias</span>
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-                <div class="bg-white p-6 rounded-3xl shadow-xl border-b-[12px] border-blue-500 text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Total de Solicitações</p><h3 id="d-tot" class="text-3xl font-black text-slate-800">617</h3></div>
-                <div class="bg-white p-6 rounded-3xl shadow-xl border-b-[12px] border-red-500 text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Pendentes</p><h3 id="d-pen" class="text-3xl font-black text-red-600">91</h3></div>
-                <div class="bg-white p-6 rounded-3xl shadow-xl border-b-[12px] border-green-500 text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Total Executado</p><h3 id="d-exe" class="text-3xl font-black text-green-600">526</h3></div>
-                <div class="bg-white p-6 rounded-3xl shadow-xl border-b-[12px] border-gov-blue text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Taxa de Eficiência</p><h3 id="d-efi" class="text-3xl font-black text-gov-blue">85.3%</h3></div>
-            </div>
-
-            <!-- Métricas Avançadas e Produtividade (Planilha Original) -->
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-                <div class="bg-white p-4 rounded-2xl shadow border border-slate-200 text-center">
-                    <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Média de Pedidos</p>
-                    <h4 class="text-lg font-black text-gov-blue">2.60 / dia</h4>
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-blue-500 text-center transition-all hover:scale-105">
+                    <p class="text-[10px] font-black uppercase text-slate-400 mb-2">Total Filtrado</p>
+                    <h3 id="d-tot" class="text-4xl font-black text-slate-800">0</h3>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow border border-slate-200 text-center">
-                    <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Dias Úteis Operacionais</p>
-                    <h4 class="text-lg font-black text-gov-blue">149 dias</h4>
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-red-500 text-center transition-all hover:scale-105">
+                    <p class="text-[10px] font-black uppercase text-slate-400 mb-2">Pendentes</p>
+                    <h3 id="d-pen" class="text-4xl font-black text-red-600">0</h3>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow border border-slate-200 text-center">
-                    <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Dias de Chuva (>5mm)</p>
-                    <h4 class="text-lg font-black text-orange-500">21 dias</h4>
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-green-500 text-center transition-all hover:scale-105">
+                    <p class="text-[10px] font-black uppercase text-slate-400 mb-2">Feitos</p>
+                    <h3 id="d-exe" class="text-4xl font-black text-green-600">0</h3>
                 </div>
-                <div class="bg-white p-4 rounded-2xl shadow border border-slate-200 text-center">
-                    <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Média Real (s/ Chuva)</p>
-                    <h4 class="text-lg font-black text-green-600">3.53 / dia</h4>
-                </div>
-                <div class="bg-white p-4 rounded-2xl shadow border border-slate-200 text-center col-span-2 md:col-span-1">
-                    <p class="text-[9px] font-black uppercase text-red-500 mb-1">Alerta Reincidência</p>
-                    <h4 class="text-xs font-black text-slate-700">50 locais repetidos</h4>
+                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-gov-blue text-center transition-all hover:scale-105">
+                    <p class="text-[10px] font-black uppercase text-slate-400 mb-2">Eficiência Bruta</p>
+                    <h3 id="d-efi" class="text-4xl font-black text-gov-blue">0%</h3>
                 </div>
             </div>
 
-            <!-- Diagnóstico Automático e Gráfico -->
-            <div class="bg-gov-blue text-white p-8 md:p-10 rounded-[40px] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-slate-800 text-white p-5 rounded-2xl shadow-md border-l-4 border-orange-400 flex justify-between items-center">
+                    <div>
+                        <p class="text-[9px] font-black uppercase text-slate-400">Eficiência Ajustada (Pluvial)</p>
+                        <h4 id="d-efi-adj" class="text-xl font-black text-orange-400">0%</h4>
+                    </div>
+                    <i class="fas fa-calculator text-2xl text-slate-600"></i>
+                </div>
+                <div class="bg-slate-800 text-white p-5 rounded-2xl shadow-md border-l-4 border-blue-400 flex justify-between items-center">
+                    <div>
+                        <p class="text-[9px] font-black uppercase text-slate-400">Dias Úteis Úteis Efetivos</p>
+                        <h4 id="d-dias-efetivos" class="text-xl font-black text-blue-400">0 dias</h4>
+                    </div>
+                    <i class="fas fa-calendar-check text-2xl text-slate-600"></i>
+                </div>
+                <div class="bg-slate-800 text-white p-5 rounded-2xl shadow-md border-l-4 border-green-400 flex justify-between items-center">
+                    <div>
+                        <p class="text-[9px] font-black uppercase text-slate-400">Média Conclusão / Dia Efetivo</p>
+                        <h4 id="d-media-dia" class="text-xl font-black text-green-400">0.0 / dia</h4>
+                    </div>
+                    <i class="fas fa-chart-line text-2xl text-slate-600"></i>
+                </div>
+            </div>
+
+            <div class="bg-gov-blue text-white p-12 rounded-[50px] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
                 <div class="w-full md:w-2/3">
-                    <p class="text-[10px] font-black opacity-50 uppercase tracking-[0.5em] mb-3 text-orange-400">Diagnóstico Automático Inteligente (Iluminação)</p>
-                    <h4 id="d-dia" class="text-xl md:text-3xl font-black italic uppercase leading-none tracking-tighter mb-4 text-green-400">EXCELENTE: Meta atingida.</h4>
-                    <p class="text-xs font-bold opacity-80 mb-6">Monitoramento contínuo baseado nas diretrizes operacionais e relatórios consolidados da Secretaria Municipal de Obras.</p>
-                    <div class="flex items-center space-x-4 border-t border-white/10 pt-4">
-                         <div class="bg-white/10 p-3 rounded-2xl">
+                    <p class="text-[10px] font-black opacity-50 uppercase tracking-[0.5em] mb-4 text-orange-400">Diagnóstico Automático Inteligente (Iluminação)</p>
+                    <h4 id="d-dia" class="text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6">Processando banco de dados...</h4>
+                    <div class="flex items-center space-x-4 border-t border-white/10 pt-6">
+                         <div class="bg-white/10 p-4 rounded-2xl">
                              <p class="text-[9px] font-bold opacity-60 uppercase mb-1">Última Sincronização</p>
                              <p id="dash-upd" class="text-xs font-mono font-bold tracking-widest text-orange-400">--:--:--</p>
                          </div>
                     </div>
                 </div>
                 <div class="bg-white/5 p-6 rounded-full border border-white/10">
-                    <canvas id="chartPie" style="max-width: 180px; max-height: 180px;"></canvas>
+                    <canvas id="chartPie" style="max-width: 200px; max-height: 200px;"></canvas>
                 </div>
             </div>
 
-            <!-- Desempenho Periódico e Acumulado Histórico -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200">
-                    <h5 class="text-xs font-black uppercase text-gov-blue mb-4 tracking-wider italic"><i class="fas fa-calendar-alt mr-2 text-orange-400"></i> Desempenho Periódico</h5>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr>
-                                    <th>Período</th>
-                                    <th>Total</th>
-                                    <th>Feitos</th>
-                                    <th>% Êxito</th>
-                                    <th>Diagnóstico</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y text-xs font-bold text-slate-700">
-                                <tr>
-                                    <td class="p-2">Semana</td>
-                                    <td class="p-2">3</td>
-                                    <td class="p-2">0</td>
-                                    <td class="p-2">0%</td>
-                                    <td class="p-2 text-red-500">CRÍTICO: Baixa resolução</td>
-                                </tr>
-                                <tr>
-                                    <td class="p-2">Mês</td>
-                                    <td class="p-2">82</td>
-                                    <td class="p-2">17</td>
-                                    <td class="p-2">20.7%</td>
-                                    <td class="p-2 text-red-500">CRÍTICO: Acúmulo alto</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200">
-                    <h5 class="text-xs font-black uppercase text-gov-blue mb-4 tracking-wider italic"><i class="fas fa-chart-bar mr-2 text-orange-400"></i> Acumulado Histórico por Tipo de Solicitação</h5>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr>
-                                    <th>Tipo de Solicitação</th>
-                                    <th>Quantidade de Solicitações</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y text-xs font-bold text-slate-700">
-                                <tr>
-                                    <td class="p-2">Lâmpadas Queimadas</td>
-                                    <td class="p-2 font-mono">568</td>
-                                </tr>
-                                <tr>
-                                    <td class="p-2">Braços / Suportes</td>
-                                    <td class="p-2 font-mono">42</td>
-                                </tr>
-                                <tr>
-                                    <td class="p-2">Globos / Luminárias</td>
-                                    <td class="p-2 font-mono">4</td>
-                                </tr>
-                                <tr>
-                                    <td class="p-2">Outros</td>
-                                    <td class="p-2 font-mono">3</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="mt-8 flex justify-center no-print">
+                <button onclick="printPainelReport()" class="bg-gov-blue text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-blue-900 transition-all flex items-center gap-3 hover:scale-105">
+                    <i class="fas fa-print text-orange-400 text-base"></i> Imprimir Relatório Completo de Eficiência
+                </button>
             </div>
         </section>
 
     </main>
 
-    <!-- MODAL NOVO PROCESSO DINÂMICO -->
     <div id="modal-p" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-[40px] p-8 max-w-lg w-full shadow-2xl border-t-[20px] border-gov-blue flex flex-col max-h-[90vh]">
             <h3 class="text-2xl font-black text-gov-blue uppercase italic mb-4 border-b pb-4 tracking-tighter">Novo Processo SMO</h3>
             <form id="form-p" onsubmit="submitData(event, 'processo')" class="flex flex-col flex-1 overflow-hidden">
-                <div id="modal-p-fields" class="space-y-4 mb-6 overflow-y-auto pr-2 flex-1">
-                    <!-- Gerado com base nas colunas exatas da planilha 001 -->
-                </div>
+                <div id="modal-p-fields" class="space-y-4 mb-6 overflow-y-auto pr-2 flex-1"></div>
                 <div class="flex space-x-3 pt-4 border-t">
                     <button type="button" onclick="document.getElementById('modal-p').classList.add('hidden')" class="w-1/3 text-[11px] font-black uppercase text-red-500 hover:underline">Cancelar</button>
                     <button type="submit" id="btn-submit-p" class="w-2/3 bg-gov-blue text-white py-4 rounded-2xl font-black uppercase text-xs shadow-xl hover:bg-blue-900 transition-all">Gravar Agora</button>
@@ -267,7 +225,6 @@
         </div>
     </div>
 
-    <!-- MODAL EDIÇÃO UNIVERSAL -->
     <div id="modal-edit" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
         <div class="bg-white rounded-[40px] p-8 max-w-lg w-full shadow-2xl border-t-[20px] border-orange-400 flex flex-col max-h-[90vh]">
             <h3 class="text-2xl font-black text-gov-blue uppercase italic mb-4 border-b pb-4 tracking-tighter">Editar Registro Existente</h3>
@@ -275,8 +232,7 @@
                 <input type="hidden" id="edit-rowId" name="rowId">
                 <input type="hidden" id="edit-target" name="target">
                 
-                <div id="edit-fields" class="space-y-4 mb-6 overflow-y-auto pr-2 flex-1">
-                </div>
+                <div id="edit-fields" class="space-y-4 mb-6 overflow-y-auto pr-2 flex-1"></div>
                 
                 <div class="flex space-x-3 pt-4 border-t">
                     <button type="button" onclick="document.getElementById('modal-edit').classList.add('hidden')" class="w-1/3 text-[11px] font-black uppercase text-red-500 hover:underline">Cancelar</button>
@@ -286,12 +242,11 @@
         </div>
     </div>
 
-    <!-- TICKET DE IMPRESSÃO INDIVIDUAL -->
     <div id="print-ticket" class="hidden bg-white p-12 w-full text-black h-screen">
         <div class="text-center mb-8 pb-4 border-b-4 border-black">
             <h1 class="text-3xl font-black uppercase tracking-tighter">Prefeitura Municipal de Cachoeiras de Macacu</h1>
             <h2 class="text-xl font-bold uppercase mt-2">Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação</h2>
-            <h3 class="text-lg font-black text-gray-600 uppercase mt-4 tracking-widest">Comprovante de Solicitação <span id="pt-os" class="bg-black text-white px-3 py-1 rounded ml-2"></span></h3>
+            <h3 class="text-lg font-black text-gray-600 uppercase mt-4 tracking-widest">Ordem de Serviço de Campo <span id="pt-os" class="bg-black text-white px-3 py-1 rounded ml-2"></span></h3>
         </div>
         
         <div class="grid grid-cols-2 gap-8 text-sm font-bold uppercase mt-8">
@@ -327,13 +282,66 @@
         </div>
 
         <div class="mt-20 pt-8 border-t-2 border-dashed border-gray-400 text-center text-xs font-bold text-gray-500 uppercase tracking-widest">
-            Assinatura do Servidor: _________________________________________ <br><br>
+            Assinatura do Encarregado: _________________________________________ <br><br>
             Impresso via Sistema Cachoeiras de Macacu Digital - SMO
         </div>
     </div>
 
+    <div id="print-report-painel" class="hidden bg-white p-10 w-full text-black">
+        <div class="text-center mb-6 pb-4 border-b-4 border-black">
+            <h1 class="text-2xl font-black uppercase tracking-tighter">Prefeitura Municipal de Cachoeiras de Macacu</h1>
+            <h2 class="text-base font-bold uppercase text-gray-700">Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação</h2>
+            <h3 class="text-sm font-black text-blue-900 uppercase mt-2 tracking-widest">Relatório Executivo de Eficiência e Produtividade - Iluminação Pública</h3>
+            <p class="text-xs text-gray-500 font-mono mt-1">Gerado em: <span id="pr-data-emissao"></span> | Período: <span id="pr-periodo">Todos os registros</span></p>
+        </div>
+
+        <div class="grid grid-cols-4 gap-4 mb-6 text-center">
+            <div class="border-2 border-black p-3 rounded">
+                <span class="text-[9px] font-black uppercase text-gray-600 block">Total Demandas</span>
+                <span id="pr-tot" class="text-2xl font-black">0</span>
+            </div>
+            <div class="border-2 border-black p-3 rounded">
+                <span class="text-[9px] font-black uppercase text-gray-600 block">Concluídas</span>
+                <span id="pr-exe" class="text-2xl font-black text-green-700">0</span>
+            </div>
+            <div class="border-2 border-black p-3 rounded">
+                <span class="text-[9px] font-black uppercase text-gray-600 block">Pendentes</span>
+                <span id="pr-pen" class="text-2xl font-black text-red-700">0</span>
+            </div>
+            <div class="border-2 border-black p-3 rounded">
+                <span class="text-[9px] font-black uppercase text-gray-600 block">Eficiência Bruta</span>
+                <span id="pr-efi" class="text-2xl font-black text-blue-900">0%</span>
+            </div>
+        </div>
+
+        <div class="bg-gray-100 p-4 rounded-lg border border-gray-300 mb-6">
+            <h4 class="text-xs font-black uppercase border-b border-gray-400 pb-1 mb-2">Parâmetros Operacionais Meteorológicos & Ajustes (NR-35 / NR-10)</h4>
+            <div class="grid grid-cols-3 gap-4 text-xs font-bold">
+                <div>Dias de Chuva Informados: <span id="pr-dias-chuva" class="font-black">0</span> dia(s)</div>
+                <div>Dias Úteis Efetivos: <span id="pr-dias-efetivos" class="font-black">0</span> dia(s)</div>
+                <div>Eficiência Ajustada: <span id="pr-efi-adj" class="font-black">0%</span></div>
+            </div>
+        </div>
+
+        <div class="border-2 border-gray-800 p-4 rounded-lg mb-8">
+            <span class="text-[10px] font-black text-gray-500 uppercase block mb-1">Diagnóstico Executivo do Sistema:</span>
+            <p id="pr-diag" class="text-lg font-black uppercase leading-snug text-black"></p>
+        </div>
+
+        <div class="mt-16 pt-6 border-t-2 border-black flex justify-between text-center text-xs font-bold uppercase">
+            <div>
+                ________________________________________________<br>
+                Departamento de Iluminação Pública
+            </div>
+            <div>
+                ________________________________________________<br>
+                Secretaria Municipal de Obras - SMO
+            </div>
+        </div>
+    </div>
+
     <footer class="w-full text-center py-6 mt-8 text-[10px] text-slate-500 font-bold uppercase tracking-widest no-print opacity-70">
-        Copyright 2026 da Equipe de Administração da Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação - Apache 2.0
+        Copyright 2026 da Equipe de Administração da Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação - Licença Apache 2.0
     </footer>
 
     <script>
@@ -371,7 +379,7 @@
             const body = document.getElementById(target === 'processo' && !isDashboard ? 'body-proc' : 'body-op');
             const head = document.getElementById(target === 'processo' && !isDashboard ? 'head-proc' : 'head-op');
             
-            if(!isDashboard) {
+            if(!isDashboard && body) {
                 body.className = "divide-y italic opacity-30";
                 body.innerHTML = "<tr><td colspan='15' class='p-20 text-center font-black animate-pulse'>Sincronizando com Banco de Dados Google...</td></tr>";
             }
@@ -411,7 +419,7 @@
                 FULL_DATA = rows;
                 CURRENT_HEADERS = headers;
 
-                if(!isDashboard) {
+                if(!isDashboard && head && body) {
                     let hHtml = "<tr>";
                     headers.forEach((h, i) => {
                         const uniqueValues = [...new Set(rows.map(d => String(d.values && d.values[i] !== undefined ? d.values[i] : "")))].filter(Boolean).sort();
@@ -427,11 +435,29 @@
                 }
             } catch(e) { 
                 console.error("Erro na sincronização:", e);
-                if(!isDashboard) {
+                if(!isDashboard && body) {
                     body.className = "divide-y";
                     body.innerHTML = `<tr><td colspan='15' class='p-20 text-center text-red-500 font-black uppercase tracking-widest'>Falha na Sincronização: ${e.message}</td></tr>`;
                 }
             }
+        }
+
+        function parseBrazilianOrIsoDate(dateStr) {
+            if (!dateStr) return null;
+            let str = String(dateStr).trim();
+            if (str.includes('T') || str.includes('-')) {
+                let d = new Date(str);
+                return isNaN(d.getTime()) ? null : d;
+            }
+            let parts = str.split('/');
+            if (parts.length === 3) {
+                let day = parseInt(parts[0], 10);
+                let month = parseInt(parts[1], 10) - 1;
+                let year = parseInt(parts[2], 10);
+                let d = new Date(year, month, day);
+                return isNaN(d.getTime()) ? null : d;
+            }
+            return null;
         }
 
         function openProcessModal() {
@@ -505,7 +531,7 @@
                 if(statusIndex === -1 && item.values) statusIndex = item.values.length - 1;
                 
                 const statusStr = item.values && item.values[statusIndex] ? String(item.values[statusIndex]).trim().toUpperCase() : "";
-                const isFeito = statusStr === "FEITO" || statusStr === "CONCLUÍDO";
+                const isFeito = ["FEITO", "CONCLUÍDO", "CONCLUIDO", "EXECUTADO", "ATENDIDO", "OK"].includes(statusStr);
 
                 if(!isFeito) {
                     tdAction.innerHTML += `<input type="checkbox" onclick="confirmDone(this, ${item.rowId}, '${target}')" class="w-4 h-4 cursor-pointer accent-gov-blue hover:scale-110" title="Marcar como FEITO (Data de Hoje)">`;
@@ -618,6 +644,7 @@
             document.getElementById('date-start').value = "";
             document.getElementById('date-end').value = "";
             document.querySelectorAll('.filter-select').forEach(s => s.value = "");
+            document.getElementById('dias-chuva').value = "0";
             applyFilters();
         }
 
@@ -627,9 +654,14 @@
             const bodyId = activeTab === 'env-fluxo' ? 'body-proc' : 'body-op';
             const target = activeTab === 'env-fluxo' ? 'processo' : document.getElementById('op-target').value;
 
-            const selects = document.getElementById(tableId).querySelectorAll('.col-filter');
-            const dStart = document.getElementById('date-start').value;
-            const dEnd = document.getElementById('date-end').value;
+            const tableElem = document.getElementById(tableId);
+            const selects = tableElem ? tableElem.querySelectorAll('.col-filter') : [];
+            
+            const dStartVal = document.getElementById('date-start').value;
+            const dEndVal = document.getElementById('date-end').value;
+
+            const dStart = dStartVal ? new Date(dStartVal + 'T00:00:00') : null;
+            const dEnd = dEndVal ? new Date(dEndVal + 'T23:59:59') : null;
 
             const dateIndex = CURRENT_HEADERS.findIndex(h => String(h).toUpperCase().includes('DATA') || String(h).toUpperCase().includes('REGISTRO'));
 
@@ -641,16 +673,21 @@
 
                 let dateMatch = true;
                 if(dateIndex !== -1 && (dStart || dEnd) && item.values && item.values[dateIndex]) {
-                    const rowDate = new Date(item.values[dateIndex]);
-                    if(!isNaN(rowDate.getTime())) {
-                        if(dStart && rowDate < new Date(dStart)) dateMatch = false;
-                        if(dEnd && rowDate > new Date(dEnd)) dateMatch = false;
+                    const rowDate = parseBrazilianOrIsoDate(item.values[dateIndex]);
+                    if(rowDate) {
+                        if(dStart && rowDate < dStart) dateMatch = false;
+                        if(dEnd && rowDate > dEnd) dateMatch = false;
                     }
                 }
 
                 return selectMatch && dateMatch;
             });
-            renderRows(document.getElementById(bodyId), filtered, target);
+
+            if (activeTab === 'env-painel') {
+                updateDashboard(filtered);
+            } else if (document.getElementById(bodyId)) {
+                renderRows(document.getElementById(bodyId), filtered, target);
+            }
         }
 
         async function confirmDone(checkboxElement, rowId, target) {
@@ -677,29 +714,83 @@
             const feitos = data.filter(r => {
                 if(!r.values) return false;
                 const s = String(r.values[statusIndex] || "").trim().toUpperCase();
-                return s === "FEITO" || s === "CONCLUÍDO";
+                return ["FEITO", "CONCLUÍDO", "CONCLUIDO", "EXECUTADO", "ATENDIDO", "OK"].includes(s);
             }).length;
             
-            const pendentes = total - feitos;
-            const efic = total > 0 ? ((feitos / total) * 100).toFixed(1) : 0;
+            const pendentes = Math.max(0, total - feitos);
+            const eficBruta = total > 0 ? ((feitos / total) * 100) : 0;
+
+            const diasChuvaInput = parseInt(document.getElementById('dias-chuva').value) || 0;
+            const diasUteisTotais = 22; // Referência mensal padrão de dias úteis operacionais
+            const diasEfetivos = Math.max(1, diasUteisTotais - diasChuvaInput);
+
+            // Ajuste de Eficiência considerando impossibilidade de trabalho em altura nos dias de chuva
+            const capacidadePerdidaPct = (diasChuvaInput / diasUteisTotais);
+            const fatorAjuste = (1 - capacidadePerdidaPct);
+            const eficAjustada = fatorAjuste > 0 ? Math.min(100, (eficBruta / fatorAjuste)) : eficBruta;
+
+            const mediaDia = (feitos / diasEfetivos).toFixed(1);
 
             document.getElementById('d-tot').innerText = total;
             document.getElementById('d-pen').innerText = pendentes;
             document.getElementById('d-exe').innerText = feitos;
-            document.getElementById('d-efi').innerText = efic + "%";
+            document.getElementById('d-efi').innerText = eficBruta.toFixed(1) + "%";
+            
+            document.getElementById('d-efi-adj').innerText = eficAjustada.toFixed(1) + "%";
+            document.getElementById('d-dias-efetivos').innerText = diasEfetivos + " dias";
+            document.getElementById('d-media-dia').innerText = mediaDia + " / dia";
+
             document.getElementById('dash-upd').innerText = new Date().toLocaleTimeString('pt-BR');
 
             const dia = document.getElementById('d-dia');
-            if(total === 0) { dia.innerText = "AGUARDANDO DADOS..."; dia.classList.replace('text-green-400', 'text-slate-400'); }
-            else if(efic < 50) { dia.innerText = "CRÍTICO: ALTO ACÚMULO DE DEMANDAS DE ILUMINAÇÃO"; dia.className = "text-xl md:text-3xl font-black italic uppercase leading-none tracking-tighter mb-4 text-red-400"; }
-            else if(efic < 80) { dia.innerText = "ATENÇÃO: ACELERAR ROTAS OPERACIONAIS"; dia.className = "text-xl md:text-3xl font-black italic uppercase leading-none tracking-tighter mb-4 text-orange-400"; }
-            else { dia.innerText = "EXCELENTE: META ATINGIDA"; dia.className = "text-xl md:text-3xl font-black italic uppercase leading-none tracking-tighter mb-4 text-green-400"; }
+            if(total === 0) {
+                dia.innerText = "AGUARDANDO DADOS..."; 
+                dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-slate-400";
+            } else if(eficAjustada < 50) { 
+                dia.innerText = "CRÍTICO: ALTO ACÚMULO DE DEMANDAS DE ILUMINAÇÃO"; 
+                dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-red-400"; 
+            } else if(eficAjustada < 80) { 
+                dia.innerText = diasChuvaInput > 0 ? "ATENÇÃO: IMPACTO METEOROLÓGICO DETECTADO - ACELERAR ROTAS" : "ATENÇÃO: ACELERAR ROTAS OPERACIONAIS"; 
+                dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-orange-400"; 
+            } else { 
+                dia.innerText = "EXCELENTE: ALTA TAXA DE EFICIÊNCIA ATINGIDA"; 
+                dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-green-400"; 
+            }
 
             if(pieC) pieC.destroy();
             pieC = new Chart(document.getElementById('chartPie'), {
-                type: 'doughnut', data: { labels: ['Realizados', 'Pendentes'], datasets: [{ data: [feitos, pendentes], backgroundColor: ['#2ecc71','#e74c3c'], borderWidth: 0 }] },
+                type: 'doughnut', 
+                data: { 
+                    labels: ['Realizados', 'Pendentes'], 
+                    datasets: [{ data: [feitos, pendentes], backgroundColor: ['#2ecc71','#e74c3c'], borderWidth: 0 }] 
+                },
                 options: { cutout: '80%', plugins: { legend: { display: false } } }
             });
+        }
+
+        function printPainelReport() {
+            document.getElementById('pr-data-emissao').innerText = new Date().toLocaleString('pt-BR');
+            
+            const dStart = document.getElementById('date-start').value;
+            const dEnd = document.getElementById('date-end').value;
+            if(dStart || dEnd) {
+                document.getElementById('pr-periodo').innerText = `${dStart || 'Início'} até ${dEnd || 'Hoje'}`;
+            } else {
+                document.getElementById('pr-periodo').innerText = "Todos os registros consolidados";
+            }
+
+            document.getElementById('pr-tot').innerText = document.getElementById('d-tot').innerText;
+            document.getElementById('pr-exe').innerText = document.getElementById('d-exe').innerText;
+            document.getElementById('pr-pen').innerText = document.getElementById('d-pen').innerText;
+            document.getElementById('pr-efi').innerText = document.getElementById('d-efi').innerText;
+            
+            document.getElementById('pr-dias-chuva').innerText = document.getElementById('dias-chuva').value;
+            document.getElementById('pr-dias-efetivos').innerText = document.getElementById('d-dias-efetivos').innerText;
+            document.getElementById('pr-efi-adj').innerText = document.getElementById('d-efi-adj').innerText;
+            
+            document.getElementById('pr-diag').innerText = document.getElementById('d-dia').innerText;
+
+            window.print();
         }
 
         async function submitData(event, type) {
