@@ -124,30 +124,127 @@
             </div>
         </section>
 
-        <!-- AMBIENTE 3: PAINEL ILUMINAÇÃO (EFICIÊNCIA) -->
+        <!-- AMBIENTE 3: PAINEL ILUMINAÇÃO (EFICIÊNCIA E MÉTRICAS COMPLETAS) -->
         <section id="env-painel" class="env-section">
             <div class="mb-4 bg-orange-100 text-orange-800 p-3 rounded-xl border border-orange-200 text-xs font-black uppercase text-center tracking-widest">
-                <i class="fas fa-lightbulb mr-2"></i> Análise de Eficiência Exclusiva do Departamento de Iluminação
+                <i class="fas fa-lightbulb mr-2"></i> Análise de Eficiência Exclusiva e Painel Consolidado do Departamento de Iluminação
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-blue-500 text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Total Filtrado</p><h3 id="d-tot" class="text-4xl font-black text-slate-800">0</h3></div>
-                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-red-500 text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Pendentes</p><h3 id="d-pen" class="text-4xl font-black text-red-600">0</h3></div>
-                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-green-500 text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Feitos</p><h3 id="d-exe" class="text-4xl font-black text-green-600">0</h3></div>
-                <div class="bg-white p-8 rounded-3xl shadow-xl border-b-[12px] border-gov-blue text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Eficiência</p><h3 id="d-efi" class="text-4xl font-black text-gov-blue">0%</h3></div>
+
+            <!-- Cards Principais -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white p-6 rounded-3xl shadow-xl border-b-[12px] border-blue-500 text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Total de Solicitações</p><h3 id="d-tot" class="text-3xl font-black text-slate-800">617</h3></div>
+                <div class="bg-white p-6 rounded-3xl shadow-xl border-b-[12px] border-red-500 text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Pendentes</p><h3 id="d-pen" class="text-3xl font-black text-red-600">91</h3></div>
+                <div class="bg-white p-6 rounded-3xl shadow-xl border-b-[12px] border-green-500 text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Total Executado</p><h3 id="d-exe" class="text-3xl font-black text-green-600">526</h3></div>
+                <div class="bg-white p-6 rounded-3xl shadow-xl border-b-[12px] border-gov-blue text-center transition-all hover:scale-105"><p class="text-[10px] font-black uppercase text-slate-400 mb-2">Taxa de Eficiência</p><h3 id="d-efi" class="text-3xl font-black text-gov-blue">85.3%</h3></div>
             </div>
-            <div class="bg-gov-blue text-white p-12 rounded-[50px] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8">
+
+            <!-- Métricas Avançadas e Produtividade (Planilha Original) -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-2xl shadow border border-slate-200 text-center">
+                    <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Média de Pedidos</p>
+                    <h4 class="text-lg font-black text-gov-blue">2.60 / dia</h4>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow border border-slate-200 text-center">
+                    <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Dias Úteis Operacionais</p>
+                    <h4 class="text-lg font-black text-gov-blue">149 dias</h4>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow border border-slate-200 text-center">
+                    <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Dias de Chuva (>5mm)</p>
+                    <h4 class="text-lg font-black text-orange-500">21 dias</h4>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow border border-slate-200 text-center">
+                    <p class="text-[9px] font-black uppercase text-slate-400 mb-1">Média Real (s/ Chuva)</p>
+                    <h4 class="text-lg font-black text-green-600">3.53 / dia</h4>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow border border-slate-200 text-center col-span-2 md:col-span-1">
+                    <p class="text-[9px] font-black uppercase text-red-500 mb-1">Alerta Reincidência</p>
+                    <h4 class="text-xs font-black text-slate-700">50 locais repetidos</h4>
+                </div>
+            </div>
+
+            <!-- Diagnóstico Automático e Gráfico -->
+            <div class="bg-gov-blue text-white p-8 md:p-10 rounded-[40px] shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 mb-6">
                 <div class="w-full md:w-2/3">
-                    <p class="text-[10px] font-black opacity-50 uppercase tracking-[0.5em] mb-4 text-orange-400">Diagnóstico Automático Inteligente (Iluminação)</p>
-                    <h4 id="d-dia" class="text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6">Processando banco de dados...</h4>
-                    <div class="flex items-center space-x-4 border-t border-white/10 pt-6">
-                         <div class="bg-white/10 p-4 rounded-2xl">
+                    <p class="text-[10px] font-black opacity-50 uppercase tracking-[0.5em] mb-3 text-orange-400">Diagnóstico Automático Inteligente (Iluminação)</p>
+                    <h4 id="d-dia" class="text-xl md:text-3xl font-black italic uppercase leading-none tracking-tighter mb-4 text-green-400">EXCELENTE: Meta atingida.</h4>
+                    <p class="text-xs font-bold opacity-80 mb-6">Monitoramento contínuo baseado nas diretrizes operacionais e relatórios consolidados da Secretaria Municipal de Obras.</p>
+                    <div class="flex items-center space-x-4 border-t border-white/10 pt-4">
+                         <div class="bg-white/10 p-3 rounded-2xl">
                              <p class="text-[9px] font-bold opacity-60 uppercase mb-1">Última Sincronização</p>
                              <p id="dash-upd" class="text-xs font-mono font-bold tracking-widest text-orange-400">--:--:--</p>
                          </div>
                     </div>
                 </div>
                 <div class="bg-white/5 p-6 rounded-full border border-white/10">
-                    <canvas id="chartPie" style="max-width: 200px; max-height: 200px;"></canvas>
+                    <canvas id="chartPie" style="max-width: 180px; max-height: 180px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Desempenho Periódico e Acumulado Histórico -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200">
+                    <h5 class="text-xs font-black uppercase text-gov-blue mb-4 tracking-wider italic"><i class="fas fa-calendar-alt mr-2 text-orange-400"></i> Desempenho Periódico</h5>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr>
+                                    <th>Período</th>
+                                    <th>Total</th>
+                                    <th>Feitos</th>
+                                    <th>% Êxito</th>
+                                    <th>Diagnóstico</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y text-xs font-bold text-slate-700">
+                                <tr>
+                                    <td class="p-2">Semana</td>
+                                    <td class="p-2">3</td>
+                                    <td class="p-2">0</td>
+                                    <td class="p-2">0%</td>
+                                    <td class="p-2 text-red-500">CRÍTICO: Baixa resolução</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">Mês</td>
+                                    <td class="p-2">82</td>
+                                    <td class="p-2">17</td>
+                                    <td class="p-2">20.7%</td>
+                                    <td class="p-2 text-red-500">CRÍTICO: Acúmulo alto</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-xl border border-slate-200">
+                    <h5 class="text-xs font-black uppercase text-gov-blue mb-4 tracking-wider italic"><i class="fas fa-chart-bar mr-2 text-orange-400"></i> Acumulado Histórico por Tipo de Solicitação</h5>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr>
+                                    <th>Tipo de Solicitação</th>
+                                    <th>Quantidade de Solicitações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y text-xs font-bold text-slate-700">
+                                <tr>
+                                    <td class="p-2">Lâmpadas Queimadas</td>
+                                    <td class="p-2 font-mono">568</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">Braços / Suportes</td>
+                                    <td class="p-2 font-mono">42</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">Globos / Luminárias</td>
+                                    <td class="p-2 font-mono">4</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2">Outros</td>
+                                    <td class="p-2 font-mono">3</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -194,7 +291,7 @@
         <div class="text-center mb-8 pb-4 border-b-4 border-black">
             <h1 class="text-3xl font-black uppercase tracking-tighter">Prefeitura Municipal de Cachoeiras de Macacu</h1>
             <h2 class="text-xl font-bold uppercase mt-2">Secretaria Municipal de Obras, Saneamento, Urbanismo e Conservação</h2>
-            <h3 class="text-lg font-black text-gray-600 uppercase mt-4 tracking-widest">Ordem de Serviço de Campo <span id="pt-os" class="bg-black text-white px-3 py-1 rounded ml-2"></span></h3>
+            <h3 class="text-lg font-black text-gray-600 uppercase mt-4 tracking-widest">Comprovante de Solicitação <span id="pt-os" class="bg-black text-white px-3 py-1 rounded ml-2"></span></h3>
         </div>
         
         <div class="grid grid-cols-2 gap-8 text-sm font-bold uppercase mt-8">
@@ -230,7 +327,7 @@
         </div>
 
         <div class="mt-20 pt-8 border-t-2 border-dashed border-gray-400 text-center text-xs font-bold text-gray-500 uppercase tracking-widest">
-            Assinatura do Encarregado: _________________________________________ <br><br>
+            Assinatura do Servidor: _________________________________________ <br><br>
             Impresso via Sistema Cachoeiras de Macacu Digital - SMO
         </div>
     </div>
@@ -594,9 +691,9 @@
 
             const dia = document.getElementById('d-dia');
             if(total === 0) { dia.innerText = "AGUARDANDO DADOS..."; dia.classList.replace('text-green-400', 'text-slate-400'); }
-            else if(efic < 50) { dia.innerText = "CRÍTICO: ALTO ACÚMULO DE DEMANDAS DE ILUMINAÇÃO"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-red-400"; }
-            else if(efic < 80) { dia.innerText = "ATENÇÃO: ACELERAR ROTAS OPERACIONAIS"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-orange-400"; }
-            else { dia.innerText = "EXCELENTE: ALTA TAXA DE EFICIÊNCIA ATINGIDA"; dia.className = "text-2xl md:text-4xl font-black italic uppercase leading-none tracking-tighter mb-6 text-green-400"; }
+            else if(efic < 50) { dia.innerText = "CRÍTICO: ALTO ACÚMULO DE DEMANDAS DE ILUMINAÇÃO"; dia.className = "text-xl md:text-3xl font-black italic uppercase leading-none tracking-tighter mb-4 text-red-400"; }
+            else if(efic < 80) { dia.innerText = "ATENÇÃO: ACELERAR ROTAS OPERACIONAIS"; dia.className = "text-xl md:text-3xl font-black italic uppercase leading-none tracking-tighter mb-4 text-orange-400"; }
+            else { dia.innerText = "EXCELENTE: META ATINGIDA"; dia.className = "text-xl md:text-3xl font-black italic uppercase leading-none tracking-tighter mb-4 text-green-400"; }
 
             if(pieC) pieC.destroy();
             pieC = new Chart(document.getElementById('chartPie'), {
