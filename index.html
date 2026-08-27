@@ -22,9 +22,9 @@
         
         @media print { 
             body * { visibility: hidden; }
-            #print-ticket, #print-ticket *, #print-report-painel, #print-report-painel * { visibility: visible; }
+            #print-ticket, #print-ticket * { visibility: visible; }
             #print-ticket { position: absolute; left: 0; top: 0; width: 100%; display: block !important; }
-            #print-report-painel { position: absolute; left: 0; top: 0; width: 100%; display: block !important; }
+            #print-report-painel { visibility: hidden !important; display: none !important; }
             .no-print { display: none !important; }
         }
     </style>
@@ -819,6 +819,13 @@
                     }
                 });
                 d.columns = columnsData;
+                d.p_numero = d.col_0 || "";
+                d.p_assunto = d.col_1 || "";
+                d.p_requerente = d.col_2 || "";
+                d.p_orgao = d.col_3 || "";
+                d.p_data = d.col_4 || "";
+                d.p_funcionario = d.col_5 || "";
+                d.p_andamento = d.col_6 || "";
             }
 
             d.target = (type === 'fluxo' || type === 'processo') ? 'processo' : document.getElementById('op-target').value;
