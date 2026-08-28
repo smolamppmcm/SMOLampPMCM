@@ -19,6 +19,8 @@
         td { font-size: 10px; border: 1px solid #f1f5f9; padding: 8px; white-space: nowrap; font-weight: 700; color: #002d5e !important; }
         
         .filter-select { width: 100%; font-size: 9px; border: 1px solid #94a3b8; border-radius: 4px; margin-top: 5px; padding: 2px; color: #000; font-weight: bold; background-color: #fff; cursor: pointer; }
+        .top-scrollbar { overflow-x: auto; overflow-y: hidden; height: 14px; margin-bottom: 4px; }
+        .top-scrollbar > div { height: 1px; }
         
         @media print { 
             body * { visibility: hidden; }
@@ -74,6 +76,7 @@
                     <h2 class="text-xs font-black uppercase text-gov-blue italic">Controle de Fluxo de Processos Administrativos</h2>
                     <button onclick="openProcessModal()" class="bg-gov-blue text-white px-6 py-2 rounded-xl text-[10px] font-black shadow-lg hover:scale-105 transition-all">+ NOVO PROCESSO</button>
                 </div>
+                <div class="top-scrollbar" id="top-scroll-proc"><div></div></div>
                 <div class="overflow-x-auto h-[650px] scroll-top-wrapper">
                     <table id="table-proc" class="w-full text-left">
                         <thead id="head-proc"></thead>
@@ -112,6 +115,7 @@
                     </form>
                 </div>
                 
+                <div class="top-scrollbar" id="top-scroll-op"><div></div></div>
                 <div class="overflow-auto h-[650px] relative">
                     <table id="table-op" class="w-full text-left text-[11px] relative">
                         <thead id="head-op"></thead>
@@ -545,10 +549,48 @@
                     tdAction.innerHTML += `<button onclick="printRow(${item.rowId})" class="bg-gray-200 text-gray-700 px-2 py-1 rounded shadow hover:bg-gray-300 transition-all" title="Imprimir Ordem de Serviço"><i class="fas fa-print"></i></button>`;
                 }
                 
+                tdAction.innerHTML += `<button onclick="deleteRow(${item.rowId}, '${target}')" class="bg-red-100 text-red-700 px-2 py-1 rounded shadow hover:bg-red-200 transition-all" title="Excluir Registro"><i class="fas fa-trash"></i></button>`;
+                
                 tr.appendChild(tdAction);
                 body.appendChild(tr);
             });
             updateDashboard(data);
+            setTimeout(syncTopScrollbars, 0);
+        }
+
+        function syncTopScrollbars() {
+            const pairs = [
+                ['top-scroll-proc', 'table-proc'],
+                ['top-scroll-op', 'table-op']
+            ];
+            pairs.forEach(([topId, tableId]) => {
+                const top = document.getElementById(topId);
+                const table = document.getElementById(tableId);
+                if(!top || !table) return;
+                const inner = top.firstElementChild;
+                if(inner) inner.style.width = table.scrollWidth + 'px';
+                const bottom = table.parentElement;
+                if(bottom) {
+                    top.onscroll = () => { bottom.scrollLeft = top.scrollLeft; };
+                    bottom.onscroll = () => { top.scrollLeft = bottom.scrollLeft; };
+                }
+            });
+        }
+
+        async function deleteRow(rowId, target) {
+            if(!confirm("Tem certeza que deseja excluir este registro? Esta ação não poderá ser desfeita.")) return;
+            try {
+                const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteRow', target, rowId }) });
+                const res = await r.json();
+                if(res.result === "sucesso") {
+                    alert("Registro excluído com sucesso!");
+                    loadData(target);
+                } else {
+                    alert(res.msg || "Falha ao excluir o registro.");
+                }
+            } catch(err) {
+                alert("Falha ao comunicar a exclusão.");
+            }
         }
 
         function editRow(rowId, target) {
@@ -863,6 +905,7 @@
             document.getElementById('tab-ilu').className = t === 'iluminacao' ? "px-6 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase italic" : "px-6 py-2 rounded-lg font-black text-[10px] text-slate-500 uppercase italic";
             document.getElementById('tab-ent').className = t === 'entulho' ? "px-6 py-2 rounded-lg font-black text-[10px] bg-white shadow text-gov-blue uppercase italic" : "px-6 py-2 rounded-lg font-black text-[10px] text-slate-500 uppercase italic";
             loadData(t);
+            setTimeout(syncTopScrollbars, 0);
         }
     </script>
 </body>
