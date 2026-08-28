@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- jQuery (necessário para Select2) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <!-- Select2 para múltipla seleção com busca -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -473,14 +475,16 @@
 
                     renderRows(body, FULL_DATA, target);
 
-                    // Inicializa os selects múltiplos com Select2
-                    $('.select2-multi').select2({
-                        placeholder: "Buscar...",
-                        allowClear: true,
-                        width: '100%'
-                    }).on('change', function() {
-                        applyFilters();
-                    });
+                    // Inicializa os selects múltiplos com Select2 (somente se houver algum)
+                    if ($('.select2-multi').length > 0) {
+                        $('.select2-multi').select2({
+                            placeholder: "Buscar...",
+                            allowClear: true,
+                            width: '100%'
+                        }).on('change', function() {
+                            applyFilters();
+                        });
+                    }
                 } else {
                     updateDashboard(FULL_DATA);
                 }
