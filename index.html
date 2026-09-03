@@ -4,6 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMOLamp - CACHOEIRAS DE MACACU</title>
+    
+    <!-- Registro do Service Worker para atualizações automáticas -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                window.location.reload(); // Recarrega a página automaticamente se houver código novo
+                            }
+                        };
+                    };
+                });
+            });
+        }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -90,7 +109,7 @@
     <main class="container mx-auto p-4 md:p-6 no-print">
 
         <div class="bg-white p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap items-center gap-4 no-print border border-slate-200">
-            <div class="flex items-center space-x-2 text-slate-500">
+            <div class="flex items-center space-x-2 text-slate-500 border-r border-slate-300 pr-4">
                 <span class="text-[10px] font-black uppercase tracking-widest">Filtrar Período:</span>
                 <input type="date" id="date-start" onchange="applyFilters()" class="border-2 p-1.5 rounded-lg text-xs outline-none focus:border-blue-500 text-black font-bold">
                 <span class="text-xs font-bold opacity-30 text-black">até</span>
@@ -100,7 +119,17 @@
             <button onclick="clearAllFilters()" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-slate-300 transition-all shadow-sm">
                 Mostrar Todos (Limpar Filtros)
             </button>
-            <button onclick="location.reload()" class="text-[10px] font-black text-blue-600 hover:underline uppercase ml-2">Resetar / Atualizar</button>
+            <button onclick="location.reload()" class="text-[10px] font-black text-blue-600 hover:underline uppercase">Resetar / Atualizar</button>
+            
+            <div class="flex items-center space-x-2 text-slate-500 border-l border-slate-300 pl-4">
+                <button onclick="bulkCopy()" class="bg-slate-700 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-slate-800 transition-all shadow-sm flex items-center gap-1">
+                    <i class="fas fa-copy"></i> Copiar Selecionados
+                </button>
+                <button onclick="bulkDone()" class="bg-green-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-green-700 transition-all shadow-sm flex items-center gap-1">
+                    <i class="fas fa-check-double"></i> Dar Baixa Múltipla
+                </button>
+            </div>
+
             <div id="relogio" class="ml-auto text-[10px] font-mono opacity-40"></div>
         </div>
 
@@ -280,6 +309,7 @@
         </div>
     </div>
 
+    <!-- Seções de Impressão (Mantidas) -->
     <div id="print-ticket" class="hidden bg-white p-12 w-full text-black h-screen">
         <div class="text-center mb-8 pb-4 border-b-4 border-black">
             <h1 class="text-3xl font-black uppercase tracking-tighter">Prefeitura Municipal de Cachoeiras de Macacu</h1>
@@ -448,20 +478,37 @@
                         const values = Array.isArray(item) ? item : (item ? Object.values(item) : []);
                         return { rowId: item.rowId || idx + 1, values: values };
                     });
-
                     if (headers.length === 0 && rows.length > 0 && rows[0].values) {
                         headers = rows[0].values.map((_, i) => `Coluna ${i + 1}`);
                     }
                 }
 
+                // NORMALIZAÇÃO DE DADOS (Resolve o agrupamento dos filtros e a exigência de caixa alta simultaneamente)
+                rows = rows.map(item => {
+                    if (item.values) {
+                        item.values = item.values.map(v => {
+                            if (typeof v === 'string') {
+                                // Ignorar formatações de data base para não quebrar a lógica de calendário
+                                if(v.match(/^\d{4}-\d{2}-\d{2}T/)) return v;
+                                // Remove acentos e joga para caixa alta
+                                return v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+                            }
+                            return v;
+                        });
+                    }
+                    return item;
+                });
+
                 FULL_DATA = rows;
                 CURRENT_HEADERS = headers;
 
                 if(!isDashboard && head && body) {
-                    let hHtml = "<tr>";
+                    // Inserção do header do Checkbox Múltiplo
+                    let hHtml = "<tr><th class='no-print text-center w-10 p-2'><input type='checkbox' class='w-4 h-4 cursor-pointer accent-gov-blue' onclick='document.querySelectorAll(\".row-chk\").forEach(c => c.checked = this.checked)' title='Selecionar Todos'></th>";
+                    
                     headers.forEach((h, i) => {
                         const uniqueValues = [...new Set(rows.map(d => String(d.values && d.values[i] !== undefined ? d.values[i] : "")))].filter(Boolean).sort();
-                        // Para as colunas B a G (índices 1 a 6) no ambiente operacional, usamos select múltiplo com busca
+                        
                         const isMulti = (target !== 'processo' && i >= 1 && i <= 6);
                         if (isMulti) {
                             hHtml += `<th>${h}<select class="col-filter select2-multi" data-index="${i}" multiple="multiple" data-placeholder="Buscar..."><option value=""></option>${uniqueValues.map(v => `<option value="${v}">${v}</option>`).join("")}</select></th>`;
@@ -475,7 +522,6 @@
 
                     renderRows(body, FULL_DATA, target);
 
-                    // Inicializa os selects múltiplos com Select2 (somente se houver algum)
                     if ($('.select2-multi').length > 0) {
                         $('.select2-multi').select2({
                             placeholder: "Buscar...",
@@ -565,6 +611,12 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-blue-50 transition duration-150";
                 
+                // Célula do Checkbox Múltiplo
+                const tdCheck = document.createElement('td');
+                tdCheck.className = "text-center no-print";
+                tdCheck.innerHTML = `<input type="checkbox" class="row-chk w-4 h-4 cursor-pointer accent-orange-400 hover:scale-110 transition-all" value="${item.rowId}">`;
+                tr.appendChild(tdCheck);
+
                 if (item.values && Array.isArray(item.values)) {
                     item.values.forEach((cell, index) => {
                         const td = document.createElement('td');
@@ -574,7 +626,8 @@
                             const tempDate = new Date(cell);
                             cellContent = isNaN(tempDate.getTime()) ? cell : tempDate.toLocaleDateString('pt-BR');
                         }
-                        td.innerText = cellContent || "---";
+                        // Os dados já foram tratados para Maiúsculo no map do loadData
+                        td.innerText = cellContent || "---"; 
                         tr.appendChild(td);
                     });
                 }
@@ -658,7 +711,7 @@
                 const label = CURRENT_HEADERS[i] !== undefined ? CURRENT_HEADERS[i] : `Campo ${i+1}`;
                 const hUpper = String(label).toUpperCase();
                 
-                let inputMarkup = `<input type="text" id="edit-val-${i}" value="${val || ''}" class="w-full border-2 p-2 rounded-lg text-xs font-bold text-slate-700 outline-none focus:border-orange-400">`;
+                let inputMarkup = `<input type="text" id="edit-val-${i}" value="${val || ''}" class="w-full border-2 p-2 rounded-lg text-xs font-bold uppercase text-slate-700 outline-none focus:border-orange-400">`;
 
                 if (hUpper.includes('ASSUNTO')) {
                     inputMarkup = `
@@ -667,7 +720,7 @@
                                 <option value="">-- ALTERAR ASSUNTO --</option>
                                 <option>HABITE-SE</option><option>AVERBAÇÃO</option><option>APROVAÇÃO DE PROJETO</option><option>RETIFICAÇÃO</option><option>MEMORANDO</option><option>OFÍCIO</option><option>PROTOCOLO GERAL</option><option>ABONO PECUNIÁRIO</option><option>AUTORIZAÇÃO DE PODA</option>
                             </select>
-                            <input type="text" id="edit-val-${i}" value="${val || ''}" class="w-full border-2 p-2 rounded-lg text-xs font-bold text-slate-700 outline-none focus:border-orange-400">
+                            <input type="text" id="edit-val-${i}" value="${val || ''}" class="w-full border-2 p-2 rounded-lg text-xs font-bold uppercase text-slate-700 outline-none focus:border-orange-400">
                         </div>
                     `;
                 }
@@ -695,7 +748,9 @@
             let updatedValues = [];
             let i = 0;
             while(document.getElementById(`edit-val-${i}`)) {
-                updatedValues.push(document.getElementById(`edit-val-${i}`).value);
+                // Forçando o caixa alta e a remoção de acentos ao editar
+                let valToPush = document.getElementById(`edit-val-${i}`).value;
+                updatedValues.push(valToPush.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase());
                 i++;
             }
 
@@ -733,6 +788,53 @@
             window.print();
         }
 
+        // --- FUNÇÕES DE AÇÃO EM LOTE ---
+        function bulkCopy() {
+            const checked = document.querySelectorAll('.row-chk:checked');
+            if(checked.length === 0) return alert('Selecione ao menos um registro na tabela para copiar os dados.');
+            
+            let textToCopy = '';
+            checked.forEach(chk => {
+                const rowId = parseInt(chk.value);
+                const item = FULL_DATA.find(r => r.rowId === rowId);
+                if(item) {
+                    textToCopy += item.values.filter(v => v).join(' | ') + '\n';
+                }
+            });
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert(`${checked.length} registros copiados para a área de transferência com sucesso!`);
+            }).catch(err => {
+                alert('Falha ao tentar acessar a área de transferência. ' + err);
+            });
+        }
+
+        async function bulkDone() {
+            const checked = Array.from(document.querySelectorAll('.row-chk:checked'));
+            if(checked.length === 0) return alert('Selecione ao menos um registro pendente para dar baixa múltipla.');
+            if(!confirm(`Tem certeza que deseja confirmar a execução de ${checked.length} registros selecionados de uma só vez?`)) return;
+            
+            const target = document.querySelector('.env-section.active').id === 'env-fluxo' ? 'processo' : document.getElementById('op-target').value;
+            
+            let successCount = 0;
+            // Executa em série para não engarrafar a API do Google Scripts
+            for(let chk of checked) {
+                const rowId = parseInt(chk.value);
+                try {
+                    const r = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'concluirPedido', target, rowId }) });
+                    const res = await r.json();
+                    if(res.result === "sucesso") successCount++;
+                } catch(e) {
+                    console.error(`Falha no ID ${rowId}:`, e);
+                }
+            }
+            
+            alert(`Processamento finalizado! ${successCount} de ${checked.length} registros foram dados como FEITO.`);
+            document.querySelectorAll(".row-chk").forEach(c => c.checked = false); // Limpa checkboxes
+            loadData(target);
+        }
+        // -------------------------------
+
         function clearAllFilters() {
             document.getElementById('date-start').value = "";
             document.getElementById('date-end').value = "";
@@ -751,7 +853,6 @@
             const target = activeTab === 'env-fluxo' ? 'processo' : document.getElementById('op-target').value;
 
             const tableElem = document.getElementById(tableId);
-            // Coleta todos os filtros: os normais (select simples) e os múltiplos (select2)
             const selects = tableElem ? tableElem.querySelectorAll('.col-filter') : [];
             
             const dStartVal = document.getElementById('date-start').value;
@@ -764,7 +865,6 @@
 
             const filtered = FULL_DATA.filter(item => {
                 const selectMatch = Array.from(selects).every(s => {
-                    // Para selects múltiplos (select2), o valor é um array
                     if (s.multiple) {
                         const selectedValues = $(s).val() || [];
                         if (selectedValues.length === 0) return true;
@@ -826,10 +926,9 @@
             const eficBruta = total > 0 ? ((feitos / total) * 100) : 0;
 
             const diasChuvaInput = parseInt(document.getElementById('dias-chuva').value) || 0;
-            const diasUteisTotais = 22; // Referência mensal padrão de dias úteis operacionais
+            const diasUteisTotais = 22; 
             const diasEfetivos = Math.max(1, diasUteisTotais - diasChuvaInput);
 
-            // Ajuste de Eficiência considerando impossibilidade de trabalho em altura nos dias de chuva
             const capacidadePerdidaPct = (diasChuvaInput / diasUteisTotais);
             const fatorAjuste = (1 - capacidadePerdidaPct);
             const eficAjustada = fatorAjuste > 0 ? Math.min(100, (eficBruta / fatorAjuste)) : eficBruta;
@@ -906,8 +1005,15 @@
             const formData = new FormData(event.target);
             const d = Object.fromEntries(formData.entries());
             
+            // TRANSFORMA TODO E QUALQUER DADO DIGITADO EM CAIXA ALTA SEM ACENTUAÇÃO
+            Object.keys(d).forEach(k => {
+                if(typeof d[k] === 'string') {
+                    d[k] = d[k].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+                }
+            });
+
             if (type === 'operacional') {
-                let ruaBase = d.rua === "ADD" ? document.getElementById('rua-m').value : d.rua;
+                let ruaBase = d.rua === "ADD" ? document.getElementById('rua-m').value.toUpperCase() : d.rua;
                 let numStr = d.numero ? " , " + d.numero : "";
                 let compStr = d.complemento ? " (" + d.complemento + ")" : "";
                 
