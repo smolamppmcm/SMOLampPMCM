@@ -495,10 +495,10 @@
                                 return v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
                             }
                             return v;
-                        if (typeof cell === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(cell)) {
-                            const tempDate = new Date(cell);
-                            cellContent = isNaN(tempDate.getTime()) ? cell : tempDate.toLocaleDateString('pt-BR');
-                        }
+                        });
+                    }
+                    return item;
+                });
 
                 FULL_DATA = rows;
                 CURRENT_HEADERS = headers;
@@ -623,7 +623,7 @@
                         const td = document.createElement('td');
                         let cellContent = cell;
                         
-                        if (String(cell).includes('T00:00:00') || String(cell).includes('Z')) {
+                        if (typeof cell === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(cell)) {
                             const tempDate = new Date(cell);
                             cellContent = isNaN(tempDate.getTime()) ? cell : tempDate.toLocaleDateString('pt-BR');
                         }
@@ -1080,3 +1080,4 @@
     </script>
 </body>
 </html>
+
