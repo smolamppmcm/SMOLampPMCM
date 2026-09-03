@@ -495,10 +495,10 @@
                                 return v.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
                             }
                             return v;
-                        });
-                    }
-                    return item;
-                });
+                        if (typeof cell === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(cell)) {
+                            const tempDate = new Date(cell);
+                            cellContent = isNaN(tempDate.getTime()) ? cell : tempDate.toLocaleDateString('pt-BR');
+                        }
 
                 FULL_DATA = rows;
                 CURRENT_HEADERS = headers;
