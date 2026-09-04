@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smolamp-pwa-v1.10.01';
+const CACHE_NAME = 'smolamp-pwa-v1.10.01C';
 
 // Instalação: força o worker a assumir o controle imediatamente
 self.addEventListener('install', event => {
